@@ -35,6 +35,8 @@ The application will (likely) be hosted on the Google platform. This area encomp
 The goal is to use Google's security so that the current AITD members can leverage their Google accounts to access.
 
 ### Application
+The application will be built using Express (web dev framework for Node.js - more info at expressjs.com). DB will likely be a Mongo instance. 
+
 The application will encompass several main functional areas or layers:
 + **FB Graph API integration** - To allow the application to access FB groups directly for publishing, editing and deleting. Assumes that the application has the proper access tokens/rights for that FB group
 + **AITD site scraper** - In order for the AITD staff to contact the individual group admins to get permission they will need a list of the FB groups within their area. This tool should allow an authorized use to query the AITD group list for their state and receive a list of the group names and FB group information. Need to define reqs for list but a .csv for download should suffice here.  
