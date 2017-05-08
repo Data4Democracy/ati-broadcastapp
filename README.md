@@ -14,7 +14,10 @@
 + [@alecf](https://datafordemocracy.slack.com/messages/@alecf/)
 
 **Project Maintainers:** Maintainers have write access to the repository. They are responsible for reviewing pull requests, providing feedback and ensuring consistency.
-+ TBD
++ [@wtee](https://datafordemocracy.slack.com/messages/@wtee)
++ [@andrew_chou](https://datafordemocracy.slack.com/messages/@andrew_chou)
++ [@jonganc](https://datafordemocracy.slack.com/messages/@jonganc)
++ [@lilianhj](https://datafordemocracy.slack.com/messages/@lilianhj)
 
 ## Getting Started:
 ### Things you should know
