@@ -1,0 +1,7 @@
+{
+  "extends": "airbnb",
+  "rules": {
+    "no-underscore-dangle": ["warn", {"allow": ["_id"]}],
+    "no-param-reassign": ["error", { "props": false }]
+  }
+}
