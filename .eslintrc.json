@@ -1,7 +1,10 @@
 {
   "extends": "airbnb",
   "rules": {
+    "no-console": ["off"],
     "no-underscore-dangle": ["warn", {"allow": ["_id"]}],
-    "no-param-reassign": ["error", { "props": false }]
+    "no-param-reassign": ["error", { "props": false }],
+    "no-unused-vars": ["warn", { "args": "none"}],
+    "quote-props" : ["warn", "consistent-as-needed"]
   }
 }

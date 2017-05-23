@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = {
   entry: {
     app: ['./src/App.jsx'],
-    vendor: ['react', 'react-dom', 'whatwg-fetch', 'react-router'],
+    vendor: ['react', 'react-dom', 'whatwg-fetch', 'react-router', 'moment'],
   },
   output: {
     path: path.resolve(__dirname, 'static'),
@@ -20,7 +20,6 @@ module.exports = {
         test: /\.jsx$/,
         loader: 'babel-loader',
         query: {
-          // presets: ['react', 'es2015']
           presets: [
             ['env', {
               targets: ['> 4%'] },
