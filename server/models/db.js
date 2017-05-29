@@ -1,46 +1,55 @@
 //  database connectivity
 
 import mongoose from 'mongoose';
-import credentials from '../credentials.js';
+import credentials from '../credentials';
 
-function mongoConnect() {
-  console.log('Mongoose attempting to connect');
-  mongoose.connect(credentials.mongo.connectionString);
-}
+import adminModels from './admin';
 
-mongoConnect();
+//  Initialize the database. An array of options can be passed in.
+//  Options:
+//    env (string):  can be 'development' or 'production'
+export default function (opts) {
+  function mongoConnect() {
+    console.log('Mongoose attempting to connect');
+    mongoose.connect(
+      credentials.mongo.connectionString,
+      { config: { autoIndex: opts !== 'production' } });
+  }
 
-// CONNECTION EVENTS
-mongoose.connection.on('connected', () => console.log('Mongoose connected'));
-mongoose.connection.on(
-  'error', err => console.log(`Mongoose connection error: ${err}`));
-mongoose.connection.on('disconnected', () => {
-  console.log('Mongoose disconnected');
-  // setInterval(mongoConnect, 200);
-});
+  mongoConnect();
 
-// handle disconnects
-const disconnectWiMsg = (msg, callback) => {
-  mongoose.connection.close(() => {
-    console.log(`Mongoose disconnect due to ${msg}`);
-    callback();
+  // CONNECTION EVENTS
+  mongoose.connection.on('connected', () => console.log('Mongoose connected'));
+  mongoose.connection.on(
+    'error', err => console.log(`Mongoose connection error: ${err}`));
+  mongoose.connection.on('disconnected', () => {
+    console.log('Mongoose disconnected');
+    // setInterval(mongoConnect, 200);
   });
-};
 
-// nodemon restarts
-process.once('SIGUSR2', () => {
-  disconnectWiMsg(
-    'nodemon restart', () => process.kill(process.pid, 'SIGUSR2'));
-});
+  // handle disconnects
+  const disconnectWiMsg = (msg, callback) => {
+    mongoose.connection.close(() => {
+      console.log(`Mongoose disconnect due to ${msg}`);
+      callback();
+    });
+  };
 
-// app terminates
-process.on('SIGINT', () => {
-  disconnectWiMsg('apt termination', () => process.exit(0));
-});
+  // nodemon restarts
+  process.once('SIGUSR2', () => {
+    disconnectWiMsg(
+      'nodemon restart', () => process.kill(process.pid, 'SIGUSR2'));
+  });
 
-// for Heroku app terminates
-process.on('SIGTERM', () => {
-  disconnectWiMsg('Heroku apt termination', () => process.exit(0));
-});
+  // app terminates
+  process.on('SIGINT', () => {
+    disconnectWiMsg('apt termination', () => process.exit(0));
+  });
 
-require('./someModel');
+  // for Heroku app terminates
+  process.on('SIGTERM', () => {
+    disconnectWiMsg('Heroku apt termination', () => process.exit(0));
+  });
+
+  adminModels();
+}

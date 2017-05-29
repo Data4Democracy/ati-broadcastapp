@@ -2,7 +2,6 @@
 
 import express from 'express';
 import path from 'path';
-import bodyParser from 'body-parser';
 import 'babel-polyfill';
 import SourceMapSupport from 'source-map-support';
 //  Some modules we may later need:
@@ -12,9 +11,7 @@ import SourceMapSupport from 'source-map-support';
 // import session from 'express-session';
 // import connectMongo from 'connect-mongo';
 
-import credentials from './credentials.js';
-import './models/db';
-
+import db from './models/db';
 import index from './routes/index';
 
 SourceMapSupport.install();
@@ -26,7 +23,6 @@ const app = express();
 // app.use(logger('dev'));
 
 app.use(express.static('../static'));
-app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: false }));
 // app.use(cookieParser());
 // app.use(session({
@@ -40,4 +36,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.resolve('../static/index.html'));
 });
 
-export default app;
+(async function main() {
+  await db({ env: app.get('env') });
+  try {
+    app.listen(3000, () => {
+      console.log('App started on port 3000');
+    });
+  } catch (err) {
+    console.log('ERROR:', err);
+  }
+}());
+
+// export default app;
