@@ -4,6 +4,7 @@ import express from 'express';
 import path from 'path';
 import 'babel-polyfill';
 import SourceMapSupport from 'source-map-support';
+import gcpDebugAgent from '@google-cloud/debug-agent';
 //  Some modules we may later need:
 // import favicon from 'serve-favicon';
 // import logger from 'morgan';
@@ -11,40 +12,45 @@ import SourceMapSupport from 'source-map-support';
 // import session from 'express-session';
 // import connectMongo from 'connect-mongo';
 
-import db from './models/db';
+import getConfigPromise from './config';
+import initDb from './models/db';
 import index from './routes/index';
 
 SourceMapSupport.install();
-
-// const MongoStore = connectMongo(session);
-const app = express();
-
-// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-// app.use(logger('dev'));
-
-app.use(express.static('../static'));
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(cookieParser());
-// app.use(session({
-//   secret: credentials.cookieSecret,
-//   store: new MongoStore({ mongooseConnection: mongoose.connection })
-// }));
-
-app.use('/api', index);
-
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve('../static/index.html'));
-});
+gcpDebugAgent.start();
 
 (async function main() {
-  await db({ env: app.get('env') });
+  // const MongoStore = connectMongo(session);
+  const app = express();
+
+  // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+  // app.use(logger('dev'));
+
+  const servePath = path.join(__dirname, '..', 'static');
+  console.log(`servePath: ${servePath}`);
+  app.use(express.static(servePath));
+  // app.use(bodyParser.urlencoded({ extended: false }));
+  // app.use(cookieParser());
+  // app.use(session({
+  //   secret: credentials.cookieSecret,
+  //   store: new MongoStore({ mongooseConnection: mongoose.connection })
+  // }));
+
+  app.use('/api', index);
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve('../static/index.html'));
+  });
+
+  //  we need the error handling for the async stuff
   try {
-    app.listen(3000, () => {
-      console.log('App started on port 3000');
+    await initDb();
+    const config = await getConfigPromise();
+    const port = config.get('PORT');
+    app.listen(port, () => {
+      console.log(`App started on port ${port}`);
     });
   } catch (err) {
     console.log('ERROR:', err);
   }
 }());
-
-// export default app;

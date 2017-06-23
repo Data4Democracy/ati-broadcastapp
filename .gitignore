@@ -3,9 +3,12 @@ static/app.bundle.js
 static/vendor.bundle.js
 static/app.bundle.js.map
 static/vendor.bundle.js.map
-static/credentials-client.js
-server/credentials.js
+static/bootstrap
+server/credentials-secret.json
 dist
 npm-debug.log
 *[~#]
 [~#]*
+
+# for travis
+/app_engine-service_account_key.json

@@ -2,7 +2,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import { sendError } from '../_common/common';
+import sendError from '../_common/sendError';
 import * as admin from '../controllers/admin';
 
 const router = express.Router();
