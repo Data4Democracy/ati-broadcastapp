@@ -1,27 +1,25 @@
 //  database connectivity
 
 import mongoose from 'mongoose';
-import credentials from '../credentials';
 
+import getConfigPromise from '../config';
 import adminModels from './admin';
 
-//  Initialize the database. An array of options can be passed in.
-//  Options:
-//    env (string):  can be 'development' or 'production'
-export default function (opts) {
-  function mongoConnect() {
-    console.log('Mongoose attempting to connect');
-    mongoose.connect(
-      credentials.mongo.connectionString,
-      { config: { autoIndex: opts !== 'production' } });
-  }
+mongoose.Promise = global.Promise;
 
-  mongoConnect();
+// opts. can be read, e.g. from environment
+const opts = {};
 
+//  Initialize the database
+export default async function initDb() {
   // CONNECTION EVENTS
+  mongoose.connection.on(
+    'connecting', () => console.log('Mongoose connecting'));
+
   mongoose.connection.on('connected', () => console.log('Mongoose connected'));
   mongoose.connection.on(
     'error', err => console.log(`Mongoose connection error: ${err}`));
+
   mongoose.connection.on('disconnected', () => {
     console.log('Mongoose disconnected');
     // setInterval(mongoConnect, 200);
@@ -52,4 +50,8 @@ export default function (opts) {
   });
 
   adminModels();
+
+  const config = await getConfigPromise();
+
+  await mongoose.connect(config.get('mongo_connectionstring'), opts);
 }

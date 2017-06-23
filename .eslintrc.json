@@ -22,7 +22,8 @@
     "no-console": ["off"],
     "no-underscore-dangle": ["warn", {"allow": ["_id"]}],
     "no-param-reassign": ["error", { "props": false }],
-    "no-unused-vars": ["warn", { "args": "none"}],
+    "no-unused-vars": [
+      "warn", {"args": "none", "varsIgnorePattern": "^_"}],
     "quote-props" : ["warn", "consistent-as-needed"],
     "no-else-return": ["off"]
   }

@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch, Link }
 from 'react-router-dom';
 import 'whatwg-fetch';  //  fetch polyfill, as needed
-import PropTypes from 'prop-types';
 
 import Header from './Header.jsx';
 import SomeClass from './SomeClass.jsx';
