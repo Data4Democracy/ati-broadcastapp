@@ -6,19 +6,13 @@
 import mongoose from 'mongoose';
 import request from 'request-promise-native';
 
-import { sendError } from '../_common/common';
-import credentials from '../credentials';
+import sendError from '../_common/sendError';
+import getConfigPromise from '../config';
 import credentialsClient from '../credentials-client';
 
 //  AdminModel can only be defined after the mongoose schema have been
-//  defined. There almost certainly a better way to handle this.
+//  defined. There might be a better way to handle this.
 let AdminModel = null;
-
-function initAdminModel() {
-  if (!AdminModel) {
-    AdminModel = mongoose.model('Admin');
-  }
-}
 
 //  Update the Facebook Access Token
 //  Expect a JSON object with parameters
@@ -32,9 +26,13 @@ function initAdminModel() {
 export async function updateAccessToken(req, res, next) {
   console.log('hello');
 
-  initAdminModel();
+  if (!AdminModel) {
+    AdminModel = mongoose.model('Admin');
+  }
 
-  if (!(req.body.userId === credentials.fbBroadcastUserId)) {
+  const config = await getConfigPromise();
+
+  if (!(req.body.userId === config.get('fb_broadcastuserid'))) {
     sendError(res, {
       code: 403,
       message: 'Wrong Facebook user',
@@ -54,7 +52,7 @@ export async function updateAccessToken(req, res, next) {
       qs: {
         grant_type: 'fb_exchange_token',
         client_id: credentialsClient.fbAppId,
-        client_secret: credentials.fbAppSecretId,
+        client_secret: config.get('fb_appsecretid'),
         fb_exchange_token: req.body.accessToken,
       },
       json: true,
