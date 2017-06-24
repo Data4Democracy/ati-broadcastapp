@@ -12,7 +12,7 @@
     "dev-all": "npm run watch & npm run watch-server & npm start",
     "test": "echo \"Error: no test specified\" && exit 0",
     "lint": "eslint --ext js,jsx src server webpack.config.js",
-    "postinstall": "ln -s ../node_modules/bootstrap/dist/ static/bootstrap",
+    "postinstall": "ln -sf ../node_modules/bootstrap/dist/ static/bootstrap",
     "prestart": "npm run compile & npm run compile-server"
   },
   "engines": {
