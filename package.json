@@ -9,7 +9,7 @@
     "compile-server": "babel server --out-dir dist --source-maps",
     "watch": "webpack-dev-server  --hot --inline",
     "watch-server": "babel server --out-dir dist --source-maps --watch",
-    "dev-all": "npm run watch & npm run watch-server & npm start",
+    "dev-all": "npm run watch-server & npm run watch & npm start",
     "test": "npm run lint",
     "lint": "eslint --ext js,jsx src server webpack.config.js",
     "postinstall": "ln -sf ../node_modules/bootstrap/dist/ static/bootstrap",
@@ -60,6 +60,7 @@
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
+    "babel-register": "^6.24.1",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.1",
     "eslint-plugin-import": "^2.2.0",

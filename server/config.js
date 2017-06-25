@@ -27,7 +27,7 @@ async function getNconf() {
     'mongo_connectionstring'];
 
   //  settings required
-  const required = fromGaeMetadata.slice().concat(['PORT']);
+  const required = fromGaeMetadata.slice().concat(['port']);
 
   nconf
     .argv()
@@ -36,7 +36,7 @@ async function getNconf() {
       __dirname, '..', 'server', 'credentials-secret.json') })
     .use('memory')
     .defaults({
-      PORT: 8080,
+      port: 8080,
     });
 
   //  note that, weirdly, nconf.set(...) affects the .use('memory')

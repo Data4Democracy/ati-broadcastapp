@@ -10,7 +10,7 @@ export default function () {
   const adminSchema = new mongoose.Schema({
     name: { type: String, required: true, index: true },
     value: { type: Mixed, required: true },
-  });
+  }, { strict: false });
 
   mongoose.model('Admin', adminSchema);
 }

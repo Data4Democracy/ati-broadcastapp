@@ -4,7 +4,7 @@ static/vendor.bundle.js
 static/app.bundle.js.map
 static/vendor.bundle.js.map
 static/bootstrap
-server/credentials-secret.json
+server/config-server.json
 dist
 npm-debug.log
 *[~#]

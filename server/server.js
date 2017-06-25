@@ -46,7 +46,7 @@ gcpDebugAgent.start();
   try {
     await initDb();
     const config = await getConfigPromise();
-    const port = config.get('PORT');
+    const port = config.get('port');
     app.listen(port, () => {
       console.log(`App started on port ${port}`);
     });

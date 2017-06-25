@@ -78,8 +78,7 @@ export async function updateAccessToken(req, res, next) {
   try {
     await AdminModel.update(
       { name: 'accessToken' },
-      { name: 'accessToken',
-        value: { accessToken: fbResponse.access_token, expiryDate } },
+      { name: 'accessToken', token: fbResponse.access_token, expiryDate },
       { upsert: true });
   } catch (err) {
     sendError(res, {
