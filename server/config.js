@@ -33,7 +33,7 @@ async function getNconf() {
     .argv()
     .env(required)
     .file({ file: path.join(
-      __dirname, '..', 'server', 'credentials-secret.json') })
+      __dirname, '..', 'server', 'config-server.json') })
     .use('memory')
     .defaults({
       port: 8080,
