@@ -7,7 +7,7 @@
     "start": "nodemon -w server dist/server.js",
     "compile": "webpack",
     "compile-server": "babel server --out-dir dist --source-maps",
-    "watch": "webpack-dev-server  --hot --inline",
+    "watch": "webpack-dev-server --hot --inline",
     "watch-server": "babel server --out-dir dist --source-maps --watch",
     "dev-all": "npm run watch-server & npm run watch & npm start",
     "test": "npm run lint",

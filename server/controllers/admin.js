@@ -24,8 +24,6 @@ let AdminModel = null;
 //  Otherwise, returns a successful query, where data is the expiryDate
 //   (Date), i.e. when the access token expires
 export async function updateAccessToken(req, res, next) {
-  console.log('hello');
-
   if (!AdminModel) {
     AdminModel = mongoose.model('Admin');
   }
