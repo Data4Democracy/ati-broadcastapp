@@ -15,9 +15,7 @@
 
 **Project Maintainers:** Maintainers have write access to the repository. They are responsible for reviewing pull requests, providing feedback and ensuring consistency.
 + [@wtee](https://datafordemocracy.slack.com/messages/@wtee)
-+ [@andrew_chou](https://datafordemocracy.slack.com/messages/@andrew_chou)
 + [@jonganc](https://datafordemocracy.slack.com/messages/@jonganc)
-+ [@lilianhj](https://datafordemocracy.slack.com/messages/@lilianhj)
 
 ## Getting Started:
 ### Things you should know
@@ -25,20 +23,20 @@
 + "First-timers" are welcome! Whether you're trying to learn data science, hone your coding skills, or get started collaborating over the web, we're happy to help. (Sidenote: with respect to Git and GitHub specifically, our github-playground repo and the #github-help Slack channel are good places to start.)
 + We believe good code is reviewed code. All commits to this repository are approved by project maintainers and/or leads (listed above). The goal here is not to criticize or judge your abilities! Rather, sharing insights and achievements. Code reviews help us continually refine the project's scope and direction, as well as encourage the discussion we need for it to thrive.
 + This README belongs to everyone. If we've missed some crucial information or left anything unclear, edit this document and submit a pull request. We welcome the feedback! Up-to-date documentation is critical to what we do, and changes like this are a great way to make your first contribution to the project.
-+ Project will be conducted in an agile format with sprints of approximately two weeks
++ Project will be conducted in an agile format with sprints of 1 - 2 weeks
 + Read [the technical specs](TECHNICAL.md) for a description of the organization of this app.
 
 ## Project Areas
 ### Hosting/Infrastructure
-The application will (likely) be hosted on the Google platform. This area encompasses decision on right Google platform/configuration, responsibility for deployment of code to the environment for testing and eventually production release
+The application is being hosted on the Google Platform (App Engine) utilizing Node.js/React, MongoDB and Google Authentication services. 
 
 ### Authorization/Authentication
-The goal is to use Google's security so that the current AITD members can leverage their Google accounts to access.
+The app will use Google's security so that the current AITD members can leverage their Google accounts to access. Each AITD trusted partner will have a Google account that will be tied to their state. 
 
 ### Application
-The application will be built using Express (web dev framework for Node.js - more info at expressjs.com). DB will likely be a Mongo instance. 
+The application will be built using Express (web dev framework for Node.js - more info at expressjs.com). DB will be a Mongo instance. 
 
 The application will encompass several main functional areas or layers:
 + **FB Graph API integration** - To allow the application to access FB groups directly for publishing, editing and deleting. Assumes that the application has the proper access tokens/rights for that FB group
-+ **AITD site scraper** - In order for the AITD staff to contact the individual group admins to get permission they will need a list of the FB groups within their area. This tool should allow an authorized use to query the AITD group list for their state and receive a list of the group names and FB group information. Need to define reqs for list but a .csv for download should suffice here.  
-+ **Publishing tool and interface** - The bulk of the application. This will provide a user the ability to select a state to publish to from a list; create a text based post and publish. Application should also provide list of past posts (need to define reqs here) to allow users edit and/or delete (dependent on the FB Graph API functionality). This area contains interface development (including error conditions) as well data storage required. We'll probably break this down further as it develops. 
++ **AITD site scraper** - In order for the AITD staff to contact the individual group admins to get permission they will need a list of the FB groups within their area. This tool should allow an authorized use to query the AITD group list for their state and receive a list of the group names and FB group information (d/l via .csv). File will be time-stamped to allow for ease of identifying new groups.   
++ **Publishing tool and interface** - The bulk of the application. This will provide a user the ability to create a text based post and publish to the groups aligned with their state affiliation. Application should also provide list of past posts (need to define reqs here) to allow users delete. This area contains interface development (including error conditions) as well data storage required. 
