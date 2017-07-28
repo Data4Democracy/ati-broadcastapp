@@ -158,7 +158,7 @@ An object for specifying the state of the message at one time
 
 field name | type | description
 ---- | ---- | ---
-id | Number (integer) | 0-based number indicating which history item is being referred to
+id | Number (integer) | 0-based number for an index
 message | String | either the message, or null if message deleted
 
 #### BroadcastOperation's
@@ -167,6 +167,7 @@ An object corresponding to one broadcast operation, e.g. broadcasting or deletin
 
 field name | type | description
 ---- | ---- | ---
+id | Number (integer) | 0-based number for an index
 date | Date | date of request
 userId | Objectid | user making request
 messageStateId | Number (integer) | id of the message state that the operation is aiming toward
@@ -237,7 +238,27 @@ field name | type  |  description
 state | String | the state to post in
 message | String | the message to be posted
 
-##### response
+##### response *(JSON)*
 
-TBD
+field name | type  |  description
+--- | --- | ---
+broadcastId | Number (integer) | the _id in the [Broadcasts document](#broadcasts)
+broadcastOperationId | Number (integer) | the [BroadcastOperation](#broadcastoperations) id
+successGroups | [String] | an array of the group ID's that were successfully updated
+error | Object | error object. See below. *only present on an error.*
 
+`response.error`:
+
+field name | type  |  description
+--- | --- | ---
+code | Number (integer) | the http code for the response
+errors | [Object] | each object in the array specifies a type of error. See below.
+
+`response.error.errors[N]`:
+
+field name | type  |  description
+--- | --- | ---
+reason | String | code name indicating error
+message | String | human readable error message
+groups | [String] | an array of affected groups
+completionTime | Date | estimated completion time. *only if server will retry message.*
