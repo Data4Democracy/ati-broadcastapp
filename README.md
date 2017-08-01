@@ -16,6 +16,7 @@
 **Project Maintainers:** Maintainers have write access to the repository. They are responsible for reviewing pull requests, providing feedback and ensuring consistency.
 + [@wtee](https://datafordemocracy.slack.com/messages/@wtee)
 + [@jonganc](https://datafordemocracy.slack.com/messages/@jonganc)
++ [@marcus](https://datafordemocracy.slack.com/messages/@marcus)
 
 ## Getting Started:
 ### Things you should know
