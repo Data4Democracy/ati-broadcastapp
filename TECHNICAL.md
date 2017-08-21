@@ -65,9 +65,13 @@ On the production server (or if `npm run compile`, `npm run compile-server` are 
 
 ## Conventions
 
+### filenames
+
+Files that are the name of a javascript class or function should use the same case as the class or function (e.g. UpdateAccessToken.jsx contains the `UpdateAccessToken` classes). Otherwise, use spinal case, i.e. "this-style", not "thisStyle" or "this_style"
+
 ### REST API structure
 
-+ For rest API endpoints, use spinal case, i.e. "this-style", not "thisStyle" or "this_style".
++ For rest API endpoints, use spinal case.
 
 ### Javascript
 
@@ -85,27 +89,47 @@ We will (tentatively) follow the [Google JSON Style Guide](https://google.github
 
 The code is linted via ESLint to follow the [Airbnb javascript guide](https://github.com/airbnb/javascript). For contributors: running eslint (after you have run `npm install` in the main directory to install dependencies) is as easy as running `npm run lint` in the main directory.
 
+### Express
+
+- Any custom properties for `req`, `res` should be placed within the `req.atiba`, `req.atiba` object.
+
+- If possible, try to separate an express route's functionality from express `req`, `res` objects. This makes it so that the functionality can be debugged without doing API calls. In other words, write a wrapper `expressFcn` that calls `expressFcnMain`. As an example, suppose that we want a funtion that simply returns the 'toReturn' key of the input JSON. We might write
+
+  `function expressFcnMain({ body: { toReturn }}) {
+    return {
+      data: toReturn,
+    };
+  }
+  
+  function expressFcn(req, res, next) {
+      jsonRespond(res, expressFcn(req));
+  }`
+  
+  `jsonRespond` is a short function defined in server/_common/express-helpers.js that simply sets the response status code and returns json.
+  
+  [Technically, we do pass `req` into expressFcn but the key thing is that `expressFcn` only cares that the input is an object with a dict of the form `{ body: {toReturn }}`, which is easy to simulate. Database objects are also OK to pass in. But avoid scenarios where we use, e.g., `res.status` or other express-specific methods.]
+
 ## Development
 
 To develop the code base, do the following:
 
-+ [Install mongodb](https://docs.mongodb.com/manual/administration/install-community/). 
-+ Follow [these Github instructions](https://help.github.com/articles/fork-a-repo/) to fork this repo to your account
-+ In the repo directory, install the dependencies by running
+1. [Install mongodb](https://docs.mongodb.com/manual/administration/install-community/). 
+1. Follow [these Github instructions](https://help.github.com/articles/fork-a-repo/) to fork this repo to your account
+1. In the repo directory, install the dependencies by running
     $ npm install
-+ [Set up configuration variables](#configuration-variables)
-+ Copy server/credentials-template.js to server/credentials.js and edit it. For example, try changing `'mongodb://'` to `'mongodb://localhost/atibroadcastapp'`.
-+ Start the app via:
+1. [Set up configuration variables](#configuration-variables)
+1. Copy server/credentials-template.js to server/credentials.js and edit it. For example, try changing `'mongodb://'` to `'mongodb://localhost/atibroadcastapp'`.
+1. Start the app via:
 
     $ npm run dev-all
     
-The app should automatically detect changes to your code and recompile. The app will listen on port 8000.
+The app should automatically detect changes to your code and recompile. The development server will listen on port 8000.
 
 ### Configuration variables
 
 The following configuration variables are recognized:
 
-variable name | (R)equired or default | description
+variable name | (R)equired or default value | description
 ---- | ---- | ----
 port | 8080 | port on which server will be run
 fb\_appsecretid | R | Facebook App secret
@@ -121,16 +145,153 @@ Because it is easiest to store configuration variables in different places in di
 3. From the file server/credentials-secret.json
 4. From Google App Engine project metadata (if being run on Google App Engine)
 
-## Explanation of database collections
+## Database collections
 
-### Admin (settings)
+### Conventions
 
-This collection hold settings for the Admin user. Each document must have a `name`, holding the setting's name, and then the other fields differ per setting and indicate the setting's values.
+- State will be given as the **lowercase** 2-letter postal abbreviation
 
-*accessToken*
+### adminsettings
+
+the `adminsettings` collection hold settings for the admin user. Each document must have a `name`, holding the setting's name, and then the other fields differ per setting and indicate the setting's values.
+
+#### accessToken
+
 The Facebook access token for the broadcast user.
 
 field name | type | description
 ---- | ---- | ---
-token | string | The access token
-expiryDate | date | the token's expiration date
+token | String | The access token
+expiryDate | Date | the token's expiration date
+
+### broadcasts
+
+Each document is a broadcasted message. The format for a document:
+
+field name | type | description
+---- | ---- | ---
+state | String | **[indexed]** state for which the broadcast is made
+messageStates | [[MessageState](#messagestates)] | the history of the message's edits over its lifetime
+groupStatus | {String: Mixed} | an object indicating each groups last confirmed state. Each key is the group id and each value is an object { messageState, postId }, where MESSAGESTATE is a messageState and POSTID is the post id, or `null` if the post has been deleted
+broadcastOperations | [[BroadcastOperation](#broadcastoperations)] | in-depth history of the broadcast's updates, for debugging
+editStartTime | Date | *if broadcast is being edited:* time that edit started. *otherwise:* null
+
+#### MessageState's
+
+A subdocument for specifying the state of the message at one time
+
+field name | type | description
+---- | ---- | ---
+message | String | either the message, or null if message deleted
+
+#### BroadcastOperation's
+
+A subdocument corresponding to one broadcast operation, e.g. broadcasting or deleting a message. It is mostly useful for debugging.
+
+field name | type | description
+---- | ---- | ---
+date | Date | date of request
+user | Objectid | user making request
+messageState | ObjectId | the message state that the operation is aiming toward
+retryFl | Boolean  | true if attempt is a retry of an incomplete posting
+debugArr | [ObjectId] | array of [Debug](#debug) IDs associated with the operation
+response | Mixed | response object returned to requestor
+
+### users
+
+The user collection holds all allowed users.
+
+field name | type | description
+---- | ---- | ---
+firstName | String | first name
+lastName | String | last name
+states | [String] | an array of the states the user is allowed access to
+loginEmail | String | **[indexed]** google e-mail, for login
+contactEmail | String | *if different than loginEmail:* user e-mail for contacting. *otherwise:* null
+
+### debuglogs
+
+Holds all interactions with Facebook for debugging.
+
+field name | type | description
+---- | ---- | ---
+date | Date | date of interaction
+user | ObjectId | user making request
+request | Mixed | the request object
+response | Mixed | the response object
+error | Mixed | if an error was generated during the request, it is saved here. either response or error should be given
+type | String | the type of interaction, e.g. `'updateAccessToken'`, `'postMessage'`. Will generally be the same as the controller function name
+address | Mixed | an object that provides some kind of address for where the request came from. E.g., if for a message posting, the object will be of the form `{broadcastId: ..., broadcastOperationId: ...}`
+
+## Backend API
+
+All API URl's are prefixed with /api
+
+(To be replaced by something using [documentation.js](http://documentation.js.org/), [JSDoc](http://usejsdoc.org/), or [ESDoc](https://esdoc.org/)? Or [Swagger](https://swagger.io/)?)
+
+### Error codes
+
+reason | http code | description
+--- | ---
+WrongUser | 400 | wrong user for updating Facebook access token
+InvalidCredentials | 403 | User does not have appropriate credentials, e.g. user is not logged in
+InsufficientCredentials | 403 | User is trying to do something for which she does not have credentials, e.g. post to a state she is not authorized for
+
+### /admin
+
+#### /admin/update-access-token POST
+
+Update an access token
+
+##### POST body *(JSON)*
+
+field name | type  |  description
+--- | --- | ---
+userId | String | the facebook user ID of the user
+accessToken | String | the access token returned by Facebook FB.login()
+
+##### response, on success *(JSON)*
+
+field name | type  |  description
+--- | --- | ---
+expiryDate | Date | date of token expiration
+
+### /post
+
+#### /post POST *(tentative)*
+
+Create a new post
+
+##### POST body *(JSON)*
+
+field name | type  |  description
+--- | --- | ---
+state | String | the state to post in
+message | String | the message to be posted
+
+##### response *(JSON)*
+
+field name | type  |  description
+--- | --- | ---
+broadcastId | Number (integer) | the _id in the [Broadcasts document](#broadcasts)
+broadcastOperationId | Number (integer) | the [BroadcastOperation](#broadcastoperations) id
+successGroups | [String] | an array of the group ID's that were successfully updated
+error | Object | error object. See below. *only present on an error.*
+
+`response.error`:
+
+field name | type  |  description
+--- | --- | ---
+code | Number (integer) | the http code for the response
+message | String | human readable error message. If there are multiple errors, this will be the message for the first one.
+errors | [Object] | each object in the array specifies a type of error. See below.
+
+`response.error.errors[N]`:
+
+field name | type  |  description
+--- | --- | ---
+code | Number (integer) | code for error
+reason | String | code name indicating error
+message | String | human readable error message
+groups | [String] | an array of affected groups
+completionTime | Date | estimated completion time. *only if server will retry message.*
