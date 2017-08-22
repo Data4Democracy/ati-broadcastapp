@@ -3,11 +3,14 @@
 import mongoose from 'mongoose';
 
 import getConfigPromise from '../config';
-import adminModels from './admin';
+import adminsettingsInit from './adminsettings';
+import broadcastsInit from './broadcasts';
+import usersInit from './users';
+import debuglogInit from './debuglogs';
 
 mongoose.Promise = global.Promise;
 
-// opts. can be read, e.g. from environment
+// opts. could be read, e.g. from environment
 const opts = {};
 
 //  Initialize the database
@@ -49,9 +52,14 @@ export default async function initDb() {
     disconnectWiMsg('Heroku apt termination', () => process.exit(0));
   });
 
-  adminModels();
+  adminsettingsInit();
+  broadcastsInit();
+  usersInit();
+  debuglogInit();
 
   const config = await getConfigPromise();
 
   await mongoose.connect(config.get('mongo_connectionstring'), opts);
+
+  await mongoose.model('User').addTestUser();
 }
