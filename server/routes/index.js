@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import { sendError } from '../_common/express-helpers';
 import validateUser from './validateUser';
 import * as admin from '../controllers/admin';
+import * as post from '../controllers/post';
 
 const router = express.Router();
 
@@ -29,6 +30,8 @@ router.use(bodyParser.json());
 router.use(validateUser);
 
 router.post('/admin/update-access-token', admin.updateAccessToken);
+
+router.post('/post', post.newPost);
 
 // catch 404 and forward to error handler
 router.use((req, res, next) => {
