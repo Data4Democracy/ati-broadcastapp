@@ -4,7 +4,7 @@ import express from 'express';
 import path from 'path';
 import 'babel-polyfill';
 import SourceMapSupport from 'source-map-support';
-import gcpDebugAgent from '@google-cloud/debug-agent';
+import * as gcpDebugAgent from '@google-cloud/debug-agent';
 //  Some modules we may later need:
 // import favicon from 'serve-favicon';
 // import logger from 'morgan';

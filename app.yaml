@@ -7,3 +7,21 @@ network:
 
 manual_scaling:
   instances: 1
+
+skip_files:
+  - ^server/config-server\.json$
+  - ^node_modules$
+  - ^dist$
+  - ^static/bootstrap$
+  - ^.*[~#]$
+  - (^|/)[~#][^/]*$
+  - ^static/app\.bundle\.js$
+  - ^static/vendor\.bundle\.js$
+  - ^static/app\.bundle\.js\.map$
+  - ^static/vendor\.bundle\.js\.map$
+  - ^npm-debug.log$
+  - ^Documentation$
+  - ^\.git$
+  - ^\.gitignore$
+  - ^[^/]*\.md$
+  - ^\.travis\.yml$
