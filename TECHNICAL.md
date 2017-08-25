@@ -125,7 +125,7 @@ Because it is easiest to store configuration variables in different places in di
 
 ### Conventions
 
-- State will be given as the 2-letter postal abbreviation
+- State will be given as the 2-letter lowercase postal abbreviation
 
 ### Admin (settings)
 
