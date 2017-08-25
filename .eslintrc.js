@@ -25,6 +25,7 @@ module.exports = {
     'no-unused-vars': [
       'warn', {args: 'none', varsIgnorePattern: '^_'}],
     'quote-props' : ['warn', 'consistent-as-needed'],
-    'no-else-return': ['off']
+    'no-else-return': ['off'],
+    'no-multi-spaces': ['off'],
   }
 };

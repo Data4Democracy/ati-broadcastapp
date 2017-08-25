@@ -2,8 +2,8 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Switch, Link }
-from 'react-router-dom';
-import 'whatwg-fetch';  //  fetch polyfill, as needed
+  from 'react-router-dom';
+import 'whatwg-fetch'; //  fetch polyfill, as needed
 
 import Header from './Header.jsx';
 import SomeClass from './SomeClass.jsx';
