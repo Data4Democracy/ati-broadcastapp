@@ -6,13 +6,13 @@
 import mongoose from 'mongoose';
 import request from 'request-promise-native';
 
-import sendError from '../_common/sendError';
+import { jsonRespond, makeError } from '../_common/express-helpers';
 import getConfigPromise from '../config';
 import credentialsClient from '../credentials-client';
 
-//  AdminModel can only be defined after the mongoose schema have been
+//  Adminsetting can only be defined after the mongoose schema have been
 //  defined. There might be a better way to handle this.
-let AdminModel = null;
+let Adminsetting = null;
 
 //  Update the Facebook Access Token
 //  Expect a JSON object with parameters
@@ -20,23 +20,21 @@ let AdminModel = null;
 //   accessToken (string): the access token sent in
 //  If userId is not that of the broadcast user, will return an error 403,
 //  with error.errors = [{reason: 'WrongUser'}]
-//
-//  Otherwise, returns a successful query, where data is the expiryDate
-//   (Date), i.e. when the access token expires
-export async function updateAccessToken(req, res, next) {
-  if (!AdminModel) {
-    AdminModel = mongoose.model('Admin');
+
+export async function updateAccessTokenMain(
+  { body: { userId, accessToken } }) {
+  if (!Adminsetting) {
+    Adminsetting = mongoose.model('Adminsetting');
   }
 
   const config = await getConfigPromise();
 
-  if (!(req.body.userId === config.get('fb_broadcastuserid'))) {
-    sendError(res, {
-      code: 403,
+  if (!(userId === config.get('fb_broadcastuserid'))) {
+    return makeError({
+      code: 400,
       message: 'Wrong Facebook user',
-      errors: [{ reason: 'WrongUser' }],
+      reason: 'WrongUser',
     });
-    return;
   }
 
   let fbResponse;
@@ -51,40 +49,43 @@ export async function updateAccessToken(req, res, next) {
         grant_type: 'fb_exchange_token',
         client_id: credentialsClient.fbAppId,
         client_secret: config.get('fb_appsecretid'),
-        fb_exchange_token: req.body.accessToken,
+        fb_exchange_token: accessToken,
       },
       json: true,
     });
   } catch (err) {
-    sendError(res, {
+    return makeError({
       code: 500,
       message: `Error in Facebook response to token request: ${err.message}`,
     });
-    return;
   }
 
   if (!(fbResponse.access_token && fbResponse.expires_in)) {
-    sendError(res, {
+    return makeError({
       code: 500,
       message: 'access_token or expires_in not found in FaceBook response',
     });
-    return;
   }
 
   const expiryDate = new Date(Date.now() + (fbResponse.expires_in * 1000));
 
   try {
-    await AdminModel.update(
+    await Adminsetting.update(
       { name: 'accessToken' },
       { name: 'accessToken', token: fbResponse.access_token, expiryDate },
       { upsert: true });
   } catch (err) {
-    sendError(res, {
+    return makeError({
       code: 500,
       message: `Error updating token in DB: ${err.message}`,
     });
-    return;
   }
 
-  res.status(200).json({ data: expiryDate });
+  return { data: expiryDate };
+}
+
+//  Otherwise, returns a successful query, where data is the expiryDate
+//   (Date), i.e. when the access token expires
+export async function updateAccessToken(req, res, next) {
+  await jsonRespond(res, await updateAccessTokenMain(req));
 }

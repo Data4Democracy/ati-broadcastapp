@@ -7,10 +7,10 @@ import mongoose from 'mongoose';
 export default function () {
   const Mixed = mongoose.Schema.Types.Mixed;
 
-  const adminSchema = new mongoose.Schema({
+  const adminsettingSchema = new mongoose.Schema({
     name: { type: String, required: true, index: true },
     value: { type: Mixed, required: true },
   }, { strict: false });
 
-  mongoose.model('Admin', adminSchema);
+  mongoose.model('Adminsetting', adminsettingSchema);
 }
