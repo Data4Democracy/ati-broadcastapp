@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import moment from 'moment';
 
 // import PropTypes from 'prop-types';
 
@@ -13,7 +12,7 @@ export default class Message extends React.Component {
       status: 'init',
       message: null,
       placeholderMessage: 'Type message to FB here...',
-      err: null
+      err: null,
     };
 
     this.cancelMessage = this.cancelMessage.bind(this);
@@ -23,13 +22,13 @@ export default class Message extends React.Component {
   }
 
   handleChange(event) {
-    this.setState({message: event.target.value});
+    this.setState({ message: event.target.value });
   }
 
   postMessage(event) {
     this.setState(
       {
-        status: 'post'
+        status: 'post',
       }
     );
     // send message to post on the backend
@@ -39,7 +38,7 @@ export default class Message extends React.Component {
     this.setState(
       {
         status: 'init',
-        message: null
+        message: null,
       }
     );
   }
@@ -48,7 +47,8 @@ export default class Message extends React.Component {
     this.setState(
       {
         status: 'confirm',
-        message: event.target.value // needs to be the message that we're going to post
+        message: event.target.value,
+        // needs to be the message that we're going to post
       }
     );
   }
@@ -91,7 +91,7 @@ export default class Message extends React.Component {
 
       case 'post':
         // content = (
-          // content for posting a message? Maybe a loading/wait animation?
+        // content for posting a message? Maybe a loading/wait animation?
         // );
         break;
 
@@ -102,10 +102,12 @@ export default class Message extends React.Component {
             <Link to="/">Return to main screen</Link>
           </div>
         );
+        break;
 
       default:
         throw new Error('Should not reach here');
     }
+
     return (
       <div>
         {content}
