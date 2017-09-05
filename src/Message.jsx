@@ -69,8 +69,12 @@ export default class Message extends React.Component {
         content = (
           <div>
             <form action="" method="post">
-              <textarea name="" onChange={this.handleChange} placeholder={this.state.placeholderMessage}
-                id="" cols="30" rows="10"></textarea>
+              <textarea name=""
+                onChange={this.handleChange}
+                placeholder={this.state.placeholderMessage}
+                id=""
+                cols="30"
+                rows="10"/>
             </form>
             <button type="button" className="btn btn-primary"
               onClick={this.confirmMessage}>Post</button>
@@ -85,10 +89,13 @@ export default class Message extends React.Component {
               This message will post to {this.state.groups} groups in your jurisdiction.
               OK to continue, cancel to edit
             </p>
-            <button type="button" className="btn btn-secondary"
-              onClick={this.cancelMessage} >Cancel</button>
+            <button type="button"
+              className="btn btn-secondary"
+              onClick={this.cancelMessage}>Cancel
+            </button>
             <button type="button" className="btn btn-primary"
-              onClick={this.postMessage} >OK</button>
+              onClick={this.postMessage}>OK
+            </button>
           </div>
         );
         break;
