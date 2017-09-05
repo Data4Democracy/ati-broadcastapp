@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 // import PropTypes from 'prop-types';
 
 // eslint-disable-next-line react/prefer-stateless-function
+
 export default class Message extends React.Component {
 
   constructor(props) {
@@ -69,15 +70,19 @@ export default class Message extends React.Component {
         content = (
           <div>
             <form action="" method="post">
-              <textarea name=""
+              <textarea
+                name=""
                 onChange={this.handleChange}
                 placeholder={this.state.placeholderMessage}
                 id=""
                 cols="30"
                 rows="10"/>
             </form>
-            <button type="button" className="btn btn-primary"
-              onClick={this.confirmMessage}>Post</button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={this.confirmMessage}>Post
+            </button>
           </div>
         );
         break;
@@ -86,14 +91,18 @@ export default class Message extends React.Component {
         content = (
           <div>
             <p>
-              This message will post to {this.state.groups} groups in your jurisdiction.
+              This message will post to {this.state.groups}
+              groups in your jurisdiction.
               OK to continue, cancel to edit
             </p>
-            <button type="button"
+            <button
+              type="button"
               className="btn btn-secondary"
               onClick={this.cancelMessage}>Cancel
             </button>
-            <button type="button" className="btn btn-primary"
+            <button
+              type="button"
+              className="btn btn-primary"
               onClick={this.postMessage}>OK
             </button>
           </div>
@@ -126,4 +135,5 @@ export default class Message extends React.Component {
       </div>
     );
   }
+
 }
