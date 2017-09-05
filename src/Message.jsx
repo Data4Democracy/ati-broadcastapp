@@ -67,10 +67,12 @@ export default class Message extends React.Component {
 
       case 'init':
         content = (
-          <form action="" method="post">
-            <textarea name="" onChange={this.handleChange} placeholder={this.state.placeholderMessage} id="" cols="30" rows="10"></textarea>
-            <button type="button" className="btn btn-primary" onClick={confirmMessage()} >Post</button>
-          </form>
+          <div>
+            <form action="" method="post">
+              <textarea name="" onChange={this.handleChange} placeholder={this.state.placeholderMessage} id="" cols="30" rows="10"></textarea>
+            </form>
+            <button type="button" className="btn btn-primary" onClick={this.confirmMessage} >Post</button>
+          </div>
         );
         break;
 
@@ -81,8 +83,8 @@ export default class Message extends React.Component {
               This message will post to {this.state.groups} groups in your jurisdiction.
               OK to continue, cancel to edit
             </p>
-            <button type="button" className="btn btn-secondary" onClick={cancelMessage()} >Cancel</button>
-            <button type="button" className="btn btn-primary" onClick={postMessage()} >OK</button>
+            <button type="button" className="btn btn-secondary" onClick={this.cancelMessage} >Cancel</button>
+            <button type="button" className="btn btn-primary" onClick={this.postMessage} >OK</button>
           </div>
         );
         break;
@@ -105,9 +107,10 @@ export default class Message extends React.Component {
         throw new Error('Should not reach here');
     }
     return (
-      <Message>
+      <div>
         {content}
-      </Message>
+        <Link to="/">Back to home</Link>
+      </div>
     );
   }
 }
