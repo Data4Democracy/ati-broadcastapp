@@ -29,7 +29,7 @@ export default class Message extends React.Component {
     this.setState(
       {
         status: 'post',
-      }
+      },
     );
     // send message to post on the backend
   }
@@ -39,7 +39,7 @@ export default class Message extends React.Component {
       {
         status: 'init',
         message: null,
-      }
+      },
     );
   }
 
@@ -49,7 +49,7 @@ export default class Message extends React.Component {
         status: 'confirm',
         message: event.target.value,
         // needs to be the message that we're going to post
-      }
+      },
     );
   }
 
@@ -69,9 +69,11 @@ export default class Message extends React.Component {
         content = (
           <div>
             <form action="" method="post">
-              <textarea name="" onChange={this.handleChange} placeholder={this.state.placeholderMessage} id="" cols="30" rows="10"></textarea>
+              <textarea name="" onChange={this.handleChange} placeholder={this.state.placeholderMessage}
+                id="" cols="30" rows="10"></textarea>
             </form>
-            <button type="button" className="btn btn-primary" onClick={this.confirmMessage} >Post</button>
+            <button type="button" className="btn btn-primary"
+              onClick={this.confirmMessage}>Post</button>
           </div>
         );
         break;
@@ -83,8 +85,10 @@ export default class Message extends React.Component {
               This message will post to {this.state.groups} groups in your jurisdiction.
               OK to continue, cancel to edit
             </p>
-            <button type="button" className="btn btn-secondary" onClick={this.cancelMessage} >Cancel</button>
-            <button type="button" className="btn btn-primary" onClick={this.postMessage} >OK</button>
+            <button type="button" className="btn btn-secondary"
+              onClick={this.cancelMessage} >Cancel</button>
+            <button type="button" className="btn btn-primary"
+              onClick={this.postMessage} >OK</button>
           </div>
         );
         break;
