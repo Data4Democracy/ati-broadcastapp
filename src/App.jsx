@@ -7,6 +7,7 @@ import 'whatwg-fetch';  //  fetch polyfill, as needed
 
 import Header from './Header.jsx';
 import SomeClass from './SomeClass.jsx';
+import Message from './Message.jsx';
 import UpdateAccessToken from './UpdateAccessToken.jsx';
 
 const contentNode = document.getElementById('contents');
@@ -16,6 +17,7 @@ const Home = () => (
   <div>
     <h2>Home</h2>
     <h3><Link to="/update-access-token">Update Access Token</Link></h3>
+    <h4><Link to="/message">Write a message</Link></h4>
   </div>
 );
 
@@ -27,6 +29,7 @@ const App = () => (
         <Switch>
           <Route exact path="/" component={Home} />
           <Route path="/some-path" component={SomeClass} />
+          <Route path="/message" component={Message} />
           <Route path="/update-access-token" component={UpdateAccessToken} />
           <Route path="*" component={NoMatch} />
         </Switch>
