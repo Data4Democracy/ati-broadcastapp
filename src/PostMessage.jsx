@@ -1,20 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 
 // eslint-disable-next-line react/prefer-stateless-function
 
-export default class Message extends React.Component {
-
+export default class PostMessage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: 'init',
+      status: 'editing',
       message: null,
-      placeholderMessage: 'Type message to FB here...',
       err: null,
     };
+
+    this.placeholderMessage = 'Type message to FB here...';
 
     this.cancelMessage = this.cancelMessage.bind(this);
     this.confirmMessage = this.confirmMessage.bind(this);
@@ -27,6 +27,8 @@ export default class Message extends React.Component {
   }
 
   postMessage(event) {
+    event.preventDefault();
+
     this.setState(
       {
         status: 'post',
@@ -36,20 +38,21 @@ export default class Message extends React.Component {
   }
 
   cancelMessage() {
+    event.preventDefault();
     this.setState(
       {
-        status: 'init',
+        status: 'editing',
         message: null,
       },
     );
   }
 
   confirmMessage(event) {
+    event.preventDefault();
     this.setState(
       {
         status: 'confirm',
-        message: event.target.value,
-        // needs to be the message that we're going to post
+        message: document.getElementById('edit-message').value,
       },
     );
   }
@@ -66,22 +69,23 @@ export default class Message extends React.Component {
 
         break;
 
-      case 'init':
+      case 'editing':
         content = (
           <div>
             <form action="" method="post">
               <textarea
                 name=""
-                onChange={this.handleChange}
-                placeholder={this.state.placeholderMessage}
-                id=""
+                placeholder={this.placeholderMessage}
+                id="edit-message"
                 cols="30"
-                rows="10"/>
+                rows="10"
+              />
             </form>
             <button
               type="button"
               className="btn btn-primary"
-              onClick={this.confirmMessage}>Post
+              onClick={this.confirmMessage}
+            >Post
             </button>
           </div>
         );
@@ -90,20 +94,46 @@ export default class Message extends React.Component {
       case 'confirm':
         content = (
           <div>
-            <p>
-              This message will post to {this.state.groups}
+            <form action="" method="post">
+              <textarea
+                name=""
+                value={this.state.message}
+                id=""
+                cols="30"
+                rows="10"
+                disabled
+              />
+            </form>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={this.confirmMessage}
+              disabled
+            >Post
+            </button>
+            <p
+            style={{marginTop: 0.5 + 'em'}}
+            >
+              This message will post to all
               groups in your jurisdiction.
-              OK to continue, cancel to edit
+              OK to continue, cancel to continue
+              editing.
             </p>
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={this.cancelMessage}>Cancel
+              onClick={this.cancelMessage}
+            >Cancel
             </button>
+             <span
+             style={{margin: 0.5 + 'em'}}
+             >
+             </span>
             <button
               type="button"
               className="btn btn-primary"
-              onClick={this.postMessage}>OK
+              onClick={this.postMessage}
+            >OK
             </button>
           </div>
         );
@@ -135,5 +165,4 @@ export default class Message extends React.Component {
       </div>
     );
   }
-
 }
