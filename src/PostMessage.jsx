@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
 // eslint-disable-next-line react/prefer-stateless-function
 
@@ -112,7 +112,7 @@ export default class PostMessage extends React.Component {
             >Post
             </button>
             <p
-            style={{marginTop: 0.5 + 'em'}}
+              style={{ marginTop: '0.5em' }}
             >
               This message will post to all
               groups in your jurisdiction.
@@ -125,10 +125,9 @@ export default class PostMessage extends React.Component {
               onClick={this.cancelMessage}
             >Cancel
             </button>
-             <span
-             style={{margin: 0.5 + 'em'}}
-             >
-             </span>
+            <span
+              style={{ margin: '0.5em' }}
+            />
             <button
               type="button"
               className="btn btn-primary"
