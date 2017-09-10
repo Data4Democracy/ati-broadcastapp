@@ -60,39 +60,39 @@ export default class PostMessage extends React.Component {
     let content;
 
     const confirmationMessage = this.state.status === 'editing' ? null :
-    (<div>
-      <p
-        style={{ marginTop: '0.5em' }}
-      >
-        This message will post to all
-        groups in your jurisdiction.
-        OK to continue, cancel to continue
-        editing.
-      </p>
-    </div>);
+      (<div>
+        <p
+          style={{ marginTop: '0.5em' }}
+        >
+          This message will post to all
+          groups in your jurisdiction.
+          OK to continue, cancel to continue
+          editing.
+        </p>
+      </div>);
 
     const confirmationButton =
-    (<div>
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={this.confirmMessage}
-        disabled={this.state.status !== 'editing'}
-      >Post
-      </button>
-    </div>);
+      (<div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={this.confirmMessage}
+          disabled={this.state.status !== 'editing'}
+        >Post
+        </button>
+      </div>);
 
     const editMessage =
-    (<div>
-      <textarea
-        name=""
-        placeholder={this.placeholderMessage}
-        id="edit-message"
-        cols="30"
-        rows="10"
-        disabled={this.state.status !== 'editing'}
-      />
-    </div>);
+      (<div>
+        <textarea
+          name=""
+          placeholder={this.placeholderMessage}
+          id="edit-message"
+          cols="30"
+          rows="10"
+          disabled={this.state.status !== 'editing'}
+        />
+      </div>);
 
     switch (this.state.status) {
       case 'errorThrottling':
