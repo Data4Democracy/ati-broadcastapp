@@ -15,7 +15,6 @@ export default class PostMessage extends React.Component {
     };
 
     this.placeholderMessage = 'Type message to FB here...';
-
     this.cancelMessage = this.cancelMessage.bind(this);
     this.confirmMessage = this.confirmMessage.bind(this);
     this.postMessage = this.postMessage.bind(this);
@@ -37,7 +36,7 @@ export default class PostMessage extends React.Component {
     // send message to post on the backend
   }
 
-  cancelMessage() {
+  cancelMessage(event) {
     event.preventDefault();
     this.setState(
       {
@@ -60,6 +59,41 @@ export default class PostMessage extends React.Component {
   render() {
     let content;
 
+    const confirmationMessage = this.state.status === 'editing' ? null :
+    (<div>
+      <p
+        style={{ marginTop: '0.5em' }}
+      >
+        This message will post to all
+        groups in your jurisdiction.
+        OK to continue, cancel to continue
+        editing.
+      </p>
+    </div>);
+
+    const confirmationButton =
+    (<div>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={this.confirmMessage}
+        disabled={this.state.status !== 'editing'}
+      >Post
+      </button>
+    </div>);
+
+    const editMessage =
+    (<div>
+      <textarea
+        name=""
+        placeholder={this.placeholderMessage}
+        id="edit-message"
+        cols="30"
+        rows="10"
+        disabled={this.state.status !== 'editing'}
+      />
+    </div>);
+
     switch (this.state.status) {
       case 'errorThrottling':
 
@@ -73,52 +107,22 @@ export default class PostMessage extends React.Component {
         content = (
           <div>
             <form action="" method="post">
-              <textarea
-                name=""
-                placeholder={this.placeholderMessage}
-                id="edit-message"
-                cols="30"
-                rows="10"
-              />
+              {editMessage}
             </form>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={this.confirmMessage}
-            >Post
-            </button>
+            {confirmationButton}
           </div>
         );
         break;
 
       case 'confirm':
+
         content = (
           <div>
             <form action="" method="post">
-              <textarea
-                name=""
-                value={this.state.message}
-                id=""
-                cols="30"
-                rows="10"
-                disabled
-              />
+              {editMessage}
             </form>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={this.confirmMessage}
-              disabled
-            >Post
-            </button>
-            <p
-              style={{ marginTop: '0.5em' }}
-            >
-              This message will post to all
-              groups in your jurisdiction.
-              OK to continue, cancel to continue
-              editing.
-            </p>
+            {confirmationButton}
+            {confirmationMessage}
             <button
               type="button"
               className="btn btn-secondary"
