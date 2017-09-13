@@ -17,7 +17,6 @@ const FBStateEnum = Object.freeze({
 });
 
 export default class GetAccessToken extends React.Component {
-
   constructor(props) {
     super(props);
 
@@ -59,7 +58,10 @@ export default class GetAccessToken extends React.Component {
   // Attempt to log into facebook after login button pressed
   async fbLogin() {
     const response = await new Promise(
-      (resolve, reject) => FB.login(theResponse => resolve(theResponse)));
+      (resolve, reject) =>
+        FB.login(
+          theResponse => resolve(theResponse),
+          { scope: 'publish_actions,user_managed_groups' }));
 
     //  note that fbLogin can only be called if status is not success, so
     //  we need not switch on that
@@ -84,7 +86,7 @@ export default class GetAccessToken extends React.Component {
           });
         } else {
           // eslint-disable-next-line no-lonely-if
-          if (theResponse.error.code === 403
+          if (theResponse.error.code === 400
               && theResponse.error.errors
               && theResponse.error.errors.filter(
                 err => err.reason === 'WrongUser')) {
@@ -132,7 +134,7 @@ export default class GetAccessToken extends React.Component {
       case FBStateEnum.success:
         content = (
           <div>Token updated through {
-              moment(this.state.expiryDate).format('MM/DD/YY')}.</div>
+            moment(this.state.expiryDate).format('MM/DD/YY')}.</div>
         );
         break;
       default:

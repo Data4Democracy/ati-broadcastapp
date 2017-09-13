@@ -4,7 +4,7 @@ import express from 'express';
 import path from 'path';
 import 'babel-polyfill';
 import SourceMapSupport from 'source-map-support';
-import gcpDebugAgent from '@google-cloud/debug-agent';
+import * as gcpDebugAgent from '@google-cloud/debug-agent';
 //  Some modules we may later need:
 // import favicon from 'serve-favicon';
 // import logger from 'morgan';
@@ -26,7 +26,9 @@ gcpDebugAgent.start();
   // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
   // app.use(logger('dev'));
 
-  app.use(express.static(path.join(__dirname, '..', 'static')));
+  const staticDir = path.join(__dirname, '..', 'static');
+
+  app.use(express.static(staticDir));
   // app.use(bodyParser.urlencoded({ extended: false }));
   // app.use(cookieParser());
   // app.use(session({
@@ -34,10 +36,17 @@ gcpDebugAgent.start();
   //   store: new MongoStore({ mongooseConnection: mongoose.connection })
   // }));
 
+  //  add a atiba object to req, res for custom attributes
+  app.use((req, res, next) => {
+    req.atiba = {};
+    res.atiba = {};
+    next();
+  });
+
   app.use('/api', index);
 
   app.get('*', (req, res) => {
-    res.sendFile(path.resolve('../static/index.html'));
+    res.sendFile(path.resolve(staticDir, 'index.html'));
   });
 
   //  we need the error handling for the async stuff

@@ -2,8 +2,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import sendError from '../_common/sendError';
+import { sendError } from '../_common/express-helpers';
+import validateUser from './validateUser';
 import * as admin from '../controllers/admin';
+import * as post from '../controllers/post';
 
 const router = express.Router();
 
@@ -24,7 +26,12 @@ router.use((req, res, next) => {
 
 router.use(bodyParser.json());
 
+//  validate the user next, adding req.atiba.user
+router.use(validateUser);
+
 router.post('/admin/update-access-token', admin.updateAccessToken);
+
+router.post('/post', post.newPost);
 
 // catch 404 and forward to error handler
 router.use((req, res, next) => {
