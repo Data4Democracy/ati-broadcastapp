@@ -1,11 +1,8 @@
 // Controller for handling posts
 
-//  We don't need a default export for this file
-/* eslint-disable import/prefer-default-export */
-
 import mongoose from 'mongoose';
 
-import { makeError, jsonRespond } from '../_common/express-helpers';
+import { makeError, middlewareFactory } from '../_common/express-helpers';
 import fbRequest from './_common/fbRequest';
 
 //  models can only be defined after the schema have been defined. There
@@ -23,9 +20,9 @@ function initModels() {
 }
 
 //  make the request format is OK
-function newPostValidateRequestFormat(req) {
-  if (typeof req.body.message === 'string'
-      && typeof req.body.state === 'string') {
+function newPostValidateRequestFormat(body) {
+  if (typeof body.message === 'string'
+      && typeof body.state === 'string') {
     return true;
   } else {
     return false;
@@ -34,8 +31,8 @@ function newPostValidateRequestFormat(req) {
 
 //  user validation
 //  is user allowed to make request
-function validateUser(req) {
-  if (!req.atiba.user.states.includes(req.body.state)) {
+function validateUser(body, user) {
+  if (!user.states.includes(body.state)) {
     return false;
   }
 
@@ -58,31 +55,27 @@ function failCodeForResponse(response) {
     : 1;
 }
 
-// input should be of form { atiba: { user }, body: { state, message } }
-export async function newPostMain(req) {
+export async function newPostMain({ body }, { locals: { user } }) {
   initModels();
 
   // validate format
-  if (!newPostValidateRequestFormat(req)) {
+  if (!newPostValidateRequestFormat(body)) {
     return makeError({
-      code: 400,
       message: 'Bad request format',
       reason: 'BadRequest',
-    });
+    }, 400);
   }
 
   // validate permissions
-  if (!validateUser(req)) {
+  if (!validateUser(body, user)) {
     return makeError({
-      code: 403,
       message: (
         'User does not have the credentials for the requested operation.'),
       reason: 'InsufficientCredentials',
-    });
+    }, 403);
   }
 
-  const user = req.atiba.user;
-  const { state, message } = req.body;
+  const { state, message } = body;
 
   const [broadcast, groups] = await Promise.all([
     Broadcast.newBroadcast(user, state, message),
@@ -150,6 +143,7 @@ export async function newPostMain(req) {
       }
     });
   }));
+  broadcast.editedState = null;
   // note that there's no reason to wait for this to finish
   broadcast.save();
 
@@ -181,6 +175,6 @@ export async function newPostMain(req) {
   return overallResponse;
 }
 
-export async function newPost(req, res, next) {
-  await jsonRespond(res, await newPostMain(req));
-}
+export default {
+  newPost: middlewareFactory(newPostMain),
+};
