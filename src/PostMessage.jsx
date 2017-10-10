@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import { fetchPostJson } from './common-client';
 // import PropTypes from 'prop-types';
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -25,15 +25,39 @@ export default class PostMessage extends React.Component {
     this.setState({ message: event.target.value });
   }
 
-  postMessage(event) {
+  async postMessage(event) {
     event.preventDefault();
 
-    this.setState(
-      {
-        status: 'post',
-      },
-    );
+    this.setState({ status: 'post' });
     // send message to post on the backend
+    const theResponseRaw = await fetchPostJson(
+      '/api/admin/post',
+      {
+        message: this.state.message,
+      });
+    const theResponse = await theResponseRaw.json();
+
+    if (theResponseRaw.ok) {
+      this.setState({
+        status: theResponse.success,
+      });
+    } else {
+      // eslint-disable-next-line no-lonely-if
+      if (theResponse.error.code === 400
+          && theResponse.error.errors
+          && theResponse.error.errors.filter(
+            err => err.reason === 'BadRequest')) {
+        this.setState({
+          status: theResponse.error.message,
+          err: theResponse.error && theResponse.error.message
+          ? theResponse.error.message : null });
+      } else {
+        this.setState({
+          status: theResponse.serverError,
+          err: theResponse.error && theResponse.error.message
+            ? theResponse.error.message : null });
+      }
+    }
   }
 
   cancelMessage(event) {
@@ -51,7 +75,7 @@ export default class PostMessage extends React.Component {
     this.setState(
       {
         status: 'confirm',
-        message: document.getElementById('edit-message').value,
+        message: this.state.message,
       },
     );
   }
@@ -87,6 +111,7 @@ export default class PostMessage extends React.Component {
         <textarea
           name=""
           placeholder={this.placeholderMessage}
+          onChange={this.handleChange}
           id="edit-message"
           cols="30"
           rows="10"
