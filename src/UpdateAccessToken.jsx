@@ -1,12 +1,12 @@
+// FB defined in Facebook script
+/* global FB */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
-import { fetchPostJson } from './common-client';
+import { postParseJson } from './common-client';
 import credentials from './credentials-client.js';
-
-// FB defined in Facebook script
-/* global FB */
 
 const FBStateEnum = Object.freeze({
   unknown: 0,        //  unknown or not connected
@@ -20,7 +20,7 @@ export default class GetAccessToken extends React.Component {
   constructor(props) {
     super(props);
 
-    /*eslint-disable*/
+    /* eslint-disable */
     //////////////////////////////////////////////////////////////////////
     // BEGIN Facebook setup script
 
@@ -44,7 +44,7 @@ export default class GetAccessToken extends React.Component {
     
     // END Facebook login script
     //////////////////////////////////////////////////////////////////////
-    /*eslint-enable*/
+    /* eslint-enable */
 
     this.fbLogin = this.fbLogin.bind(this);
 
@@ -72,14 +72,14 @@ export default class GetAccessToken extends React.Component {
         return;
       case 'connected': {
         this.setState({ fbState: FBStateEnum.waiting });
-        const theResponseRaw = await fetchPostJson(
-          '/api/admin/update-access-token',
-          { userId: response.authResponse.userID,
-            accessToken: response.authResponse.accessToken });
-        //  Get the response and parse it as json
-        const theResponse = await theResponseRaw.json();
 
-        if (theResponseRaw.ok) {
+        //  Get the response and parse it as json
+        const theResponse = await postParseJson(
+          '/api/admin/update-access-token',
+          { userIdFb: response.authResponse.userID,
+            accessToken: response.authResponse.accessToken });
+
+        if (!theResponse.error) {
           this.setState({
             fbState: FBStateEnum.success,
             expiryDate: theResponse.data,
@@ -134,7 +134,8 @@ export default class GetAccessToken extends React.Component {
       case FBStateEnum.success:
         content = (
           <div>Token updated through {
-            moment(this.state.expiryDate).format('MM/DD/YY')}.</div>
+            moment(this.state.expiryDate).format('MM/DD/YY')}.
+          </div>
         );
         break;
       default:
