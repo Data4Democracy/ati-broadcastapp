@@ -24,8 +24,11 @@ module.exports = {
     'no-param-reassign': ['error', { props: false }],
     'no-unused-vars': [
       'warn', {args: 'none', varsIgnorePattern: '^_'}],
+    'no-unused-expressions': ["error", { allowShortCircuit: true }],
     'quote-props' : ['warn', 'consistent-as-needed'],
     'no-else-return': ['off'],
     'no-multi-spaces': ['off'],
+    'function-paren-newline': ['off'],
+    'object-curly-newline': ['off'],
   }
 };
