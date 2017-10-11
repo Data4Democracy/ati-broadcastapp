@@ -110,7 +110,7 @@ completionTime | Date | estimated completion time. *only if server will retry me
 This is a list of error reasons that might be encountered
 
 reason |  description
---- | --- | ---
+--- | ---
 InvalidCredentials | request does not have appropriate credentials
 CouldNotVerifyToken | user's token could not be authenticated
 NoUser | user's login id was not in user database
