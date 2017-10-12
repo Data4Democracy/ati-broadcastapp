@@ -1,9 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { fetchPostJson } from './common-client';
-// import PropTypes from 'prop-types';
 
-// eslint-disable-next-line react/prefer-stateless-function
+import { fetchPostJson } from './common-client';
 
 export default class PostMessage extends React.Component {
   constructor(props) {
@@ -31,32 +29,22 @@ export default class PostMessage extends React.Component {
     this.setState({ status: 'post' });
     // send message to post on the backend
     const theResponseRaw = await fetchPostJson(
-      '/api/admin/post',
+      '/api/post',
       {
         message: this.state.message,
+        state: 'tx',
       });
     const theResponse = await theResponseRaw.json();
 
     if (theResponseRaw.ok) {
       this.setState({
-        status: theResponse.success,
+        status: 'success',
       });
     } else {
-      // eslint-disable-next-line no-lonely-if
-      if (theResponse.error.code === 400
-          && theResponse.error.errors
-          && theResponse.error.errors.filter(
-            err => err.reason === 'BadRequest')) {
-        this.setState({
-          status: theResponse.error.message,
-          err: theResponse.error && theResponse.error.message
+      this.setState({
+        status: 'error',
+        err: theResponse.error && theResponse.error.message
           ? theResponse.error.message : null });
-      } else {
-        this.setState({
-          status: theResponse.serverError,
-          err: theResponse.error && theResponse.error.message
-            ? theResponse.error.message : null });
-      }
     }
   }
 
@@ -104,7 +92,7 @@ export default class PostMessage extends React.Component {
           disabled={this.state.status !== 'editing'}
         >Post
         </button>
-      </div>);
+       </div>);
 
     const editMessage =
       (<div>
@@ -119,16 +107,22 @@ export default class PostMessage extends React.Component {
         />
       </div>);
 
+    // do we want to show the back button?
+    let willShowBack = false;
+
     switch (this.state.status) {
       case 'errorThrottling':
-
         break;
 
-      case 'errorGroups':
-
+      case 'error':
+        willShowBack = true;
+        content = (
+          <div className="error">{this.state.err || 'Error'}</div>
+        );
         break;
 
       case 'editing':
+        willShowBack = true;
         content = (
           <div>
             <form action="" method="post">
@@ -140,7 +134,6 @@ export default class PostMessage extends React.Component {
         break;
 
       case 'confirm':
-
         content = (
           <div>
             <form action="" method="post">
@@ -168,17 +161,15 @@ export default class PostMessage extends React.Component {
         break;
 
       case 'post':
-        // content = (
-        // content for posting a message? Maybe a loading/wait animation?
-        // );
+        content = (
+          <div>Posting message...</div>
+        );
         break;
 
       case 'success':
+        willShowBack = true;
         content = (
-          <div>
-            <p>Your message has been successfully posted!</p>
-            <Link to="/">Return to main screen</Link>
-          </div>
+          <p>Your message has been successfully posted!</p>
         );
         break;
 
@@ -189,7 +180,7 @@ export default class PostMessage extends React.Component {
     return (
       <div>
         {content}
-        <Link to="/">Back to home</Link>
+        {willShowBack && <Link to="/">Back to home</Link>}
       </div>
     );
   }

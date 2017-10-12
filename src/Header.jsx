@@ -3,7 +3,6 @@ import {
   Navbar, Nav, NavItem, NavDropdown, MenuItem, Glyphicon,
 } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
-import GoogleLogin from 'react-google-login';
 import ClientCredentials from './credentials-client';
 
 // Dummy callback for login
@@ -21,12 +20,7 @@ const Header = () => (
         <NavItem>Go somewhere</NavItem>
       </LinkContainer>
       <NavItem>
-        <GoogleLogin
-          clientId={ClientCredentials.googleClientId}
-          buttonText="Login"
-          onSuccess={responseGoogle}
-          onFailure={responseGoogle}
-        />
+        Login
       </NavItem>
     </Nav>
     <Nav pullRight>
