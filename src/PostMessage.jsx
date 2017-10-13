@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { fetchPostJson } from './common-client';
+import { postParseJson, printBackendError } from './common-client';
 
 export default class PostMessage extends React.Component {
   constructor(props) {
@@ -28,24 +28,33 @@ export default class PostMessage extends React.Component {
 
     this.setState({ status: 'post' });
     // send message to post on the backend
-    const theResponseRaw = await fetchPostJson(
-      '/api/post',
-      {
-        message: this.state.message,
-        state: 'tx',
-      });
-    const theResponse = await theResponseRaw.json();
-
-    if (theResponseRaw.ok) {
-      this.setState({
-        status: 'success',
-      });
-    } else {
+    let response;
+    try {
+      response = await postParseJson(
+        '/api/post',
+        {
+          message: this.state.message,
+          state: 'tx',
+        });
+    } catch (e) {
       this.setState({
         status: 'error',
-        err: theResponse.error && theResponse.error.message
-          ? theResponse.error.message : null });
+        err: `Error contacting backend: ${e.message}`,
+      });
+      return;
     }
+
+    if (response.error) {
+      this.setState({
+        status: 'error',
+        err: printBackendError(response),
+      });
+      return;
+    }
+
+    this.setState({
+      status: 'success',
+    });
   }
 
   cancelMessage(event) {
@@ -71,11 +80,9 @@ export default class PostMessage extends React.Component {
   render() {
     let content;
 
-    const confirmationMessage = this.state.status === 'editing' ? null :
-      (<div>
-        <p
-          style={{ marginTop: '0.5em' }}
-        >
+    const confirmationMessage = this.state.status === 'editing' ? null : (
+      <div>
+        <p style={{ marginTop: '0.5em' }}>
           This message will post to all
           groups in your jurisdiction.
           OK to continue, cancel to continue
@@ -83,8 +90,8 @@ export default class PostMessage extends React.Component {
         </p>
       </div>);
 
-    const confirmationButton =
-      (<div>
+    const confirmationButton = (
+      <div>
         <button
           type="button"
           className="btn btn-primary"
@@ -92,10 +99,10 @@ export default class PostMessage extends React.Component {
           disabled={this.state.status !== 'editing'}
         >Post
         </button>
-       </div>);
+      </div>);
 
-    const editMessage =
-      (<div>
+    const editMessage = (
+      <div>
         <textarea
           name=""
           placeholder={this.placeholderMessage}
