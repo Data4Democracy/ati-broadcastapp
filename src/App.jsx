@@ -8,6 +8,7 @@ import 'whatwg-fetch'; //  fetch polyfill, as needed
 import Login from './Login.jsx';
 import LogOut from './LogOut.jsx';
 import Header from './Header.jsx';
+import PostMessage from './PostMessage.jsx';
 import UpdateAccessToken from './UpdateAccessToken.jsx';
 
 const contentNode = document.getElementById('contents');
@@ -17,6 +18,7 @@ const Home = () => (
   <div>
     <h2>Home</h2>
     <h3><Link to="/update-access-token">Update Access Token</Link></h3>
+    <h4><Link to="/post-message">Write a message</Link></h4>
   </div>
 );
 
@@ -62,6 +64,7 @@ class AppMain extends React.Component {
                 path="/update-access-token"
                 component={UpdateAccessToken}
               />
+              <Route path="/post-message" component={PostMessage} />
               <Route path="*" component={NoMatch} />
             </Switch>
             <hr />
