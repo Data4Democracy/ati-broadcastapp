@@ -41,7 +41,7 @@ function validateUser(body, user) {
 
 //  eventually, this will get the groups for each state
 async function getGroups(state) { // eslint-disable-line no-unused-vars
-  return ['1025537044214027', '1318937518226597', '1318937518226591'];
+  return ['1025537044214027', '1318937518226597'];
 }
 
 //  give a fail code for a particular response. For now, we just use the

@@ -119,7 +119,8 @@ export async function injectScript(src, isAsync = true, isDefer = true) {
 //    error.
 //  It returns an empty string if there is no error.
 //  If ASHTML, return the response as html.
-//  Note that not all functionality is currently supported.
+//  Note that not all functionality is currently supported (notably, asHtml
+//    is essentially ignored).
 export function printBackendError(responseJson, asHtml) {
   const { error } = responseJson;
   if (!error) return '';

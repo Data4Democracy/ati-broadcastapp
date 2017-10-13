@@ -1,12 +1,15 @@
 import React from 'react';
 import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import propTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
 
 const Header = props => (
   <Navbar fluid>
     <Navbar.Header>
-      <Navbar.Brand>ATI Broadcast App</Navbar.Brand>
+      <Navbar.Brand>
+        <Link to="/">ATI Broadcast App</Link>
+      </Navbar.Brand>
     </Navbar.Header>
     <Nav>
       <LinkContainer to="/some-path">

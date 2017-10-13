@@ -34,7 +34,7 @@ async function validateUser(req, res, next) {
   }
 
   if (req.session.userId) {
-    res.locals.user = User.findOne({ _id: req.session.userId });
+    res.locals.user = await User.findOne({ _id: req.session.userId });
     if (!res.locals.user) req.session.userId = null;
   }
 

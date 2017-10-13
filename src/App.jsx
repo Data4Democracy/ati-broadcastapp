@@ -8,7 +8,6 @@ import 'whatwg-fetch'; //  fetch polyfill, as needed
 import Login from './Login.jsx';
 import LogOut from './LogOut.jsx';
 import Header from './Header.jsx';
-import SomeClass from './SomeClass.jsx';
 import UpdateAccessToken from './UpdateAccessToken.jsx';
 
 const contentNode = document.getElementById('contents');
@@ -58,8 +57,7 @@ class AppMain extends React.Component {
                     setUser={this.setUser}
                     history={props.history}
                   />)}
-              />{
-              }<Route path="/some-path" component={SomeClass} />
+              />
               <Route
                 path="/update-access-token"
                 component={UpdateAccessToken}

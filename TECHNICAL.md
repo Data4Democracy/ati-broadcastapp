@@ -134,5 +134,5 @@ Note that all variables are lowercase and separate using underscores.
 Because it is easiest to store configuration variables in different places in different environments, configuration variables are checked for in several places in the following order:
 1. As argument (e.g. `node dist/server.js --port 40 --fb_appsecretid fjlj34`)
 2. As an environmental variable
-3. From the file server/credentials-secret.json
+3. From the file server/config-server.json
 4. From Google App Engine project metadata (if being run on Google App Engine)
