@@ -2,6 +2,7 @@
 
 import mongoose from 'mongoose';
 
+import asyncConstant from '../_common/asyncConstant';
 import getConfigPromise from '../config';
 import adminsettingsInit from './adminsettings';
 import broadcastsInit from './broadcasts';
@@ -13,8 +14,8 @@ mongoose.Promise = global.Promise;
 // opts. could be read, e.g. from environment
 const opts = {};
 
-//  Initialize the database
-export default async function initDb() {
+//  Initialize the database. Return the mongoose connection
+export async function initDb() {
   // CONNECTION EVENTS
   mongoose.connection.on(
     'connecting', () => console.log('Mongoose connecting'));
@@ -25,7 +26,6 @@ export default async function initDb() {
 
   mongoose.connection.on('disconnected', () => {
     console.log('Mongoose disconnected');
-    // setInterval(mongoConnect, 200);
   });
 
   // handle disconnects
@@ -59,7 +59,11 @@ export default async function initDb() {
 
   const config = await getConfigPromise();
 
-  await mongoose.connect(config.get('mongo_connectionstring'), opts);
+  await mongoose.connect(
+    config.get('mongo_connectionstring'),
+    Object.assign(opts, { useMongoClient: true }));
 
   await mongoose.model('User').addTestUser();
 }
+
+export default asyncConstant(initDb);

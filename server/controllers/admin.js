@@ -1,12 +1,9 @@
 // Controller for admin-related API functionality
 
-//  We don't need a default export for this file
-/* eslint-disable import/prefer-default-export */
-
 import mongoose from 'mongoose';
 import request from 'request-promise-native';
 
-import { jsonRespond, makeError } from '../_common/express-helpers';
+import { makeError, middlewareFactory } from '../_common/express-helpers';
 import getConfigPromise from '../config';
 import credentialsClient from '../credentials-client';
 
@@ -16,25 +13,23 @@ let Adminsetting = null;
 
 //  Update the Facebook Access Token
 //  Expect a JSON object with parameters
-//   userId (string): the userId of the user attempting to log in
+//   userIdFb (string): the facebook user-ID of the user attempting to log in
 //   accessToken (string): the access token sent in
-//  If userId is not that of the broadcast user, will return an error 403,
+//  If userIdFb is not that of the broadcast user, will return an error 403,
 //  with error.errors = [{reason: 'WrongUser'}]
-
 export async function updateAccessTokenMain(
-  { body: { userId, accessToken } }) {
+  { body: { userIdFb, accessToken } }) {
   if (!Adminsetting) {
     Adminsetting = mongoose.model('Adminsetting');
   }
 
   const config = await getConfigPromise();
 
-  if (!(userId === config.get('fb_broadcastuserid'))) {
+  if (!(userIdFb === config.get('fb_broadcastuserid'))) {
     return makeError({
-      code: 400,
       message: 'Wrong Facebook user',
       reason: 'WrongUser',
-    });
+    }, 400);
   }
 
   let fbResponse;
@@ -55,16 +50,14 @@ export async function updateAccessTokenMain(
     });
   } catch (err) {
     return makeError({
-      code: 500,
       message: `Error in Facebook response to token request: ${err.message}`,
-    });
+    }, 500);
   }
 
   if (!(fbResponse.access_token && fbResponse.expires_in)) {
     return makeError({
-      code: 500,
       message: 'access_token or expires_in not found in FaceBook response',
-    });
+    }, 500);
   }
 
   const expiryDate = new Date(Date.now() + (fbResponse.expires_in * 1000));
@@ -76,16 +69,13 @@ export async function updateAccessTokenMain(
       { upsert: true });
   } catch (err) {
     return makeError({
-      code: 500,
       message: `Error updating token in DB: ${err.message}`,
-    });
+    }, 500);
   }
 
   return { data: expiryDate };
 }
 
-//  Otherwise, returns a successful query, where data is the expiryDate
-//   (Date), i.e. when the access token expires
-export async function updateAccessToken(req, res, next) {
-  await jsonRespond(res, await updateAccessTokenMain(req));
-}
+export default {
+  updateAccessToken: middlewareFactory(updateAccessTokenMain),
+};

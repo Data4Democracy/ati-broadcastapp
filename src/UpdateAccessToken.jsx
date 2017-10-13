@@ -1,18 +1,18 @@
+// FB defined in Facebook script
+/* global FB */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 
-import { fetchPostJson } from './common-client';
+import { postParseJson, printBackendError } from './common-client';
 import credentials from './credentials-client.js';
-
-// FB defined in Facebook script
-/* global FB */
 
 const FBStateEnum = Object.freeze({
   unknown: 0,        //  unknown or not connected
   wrongUser: 1,      //  logged in as wrong user
   waiting: 2,        //  waiting, likely for server response
-  serverError: 3,    //  server error
+  error: 3,    //  server error
   success: 4,        //  token successfully generated and/or extended
 });
 
@@ -20,7 +20,7 @@ export default class GetAccessToken extends React.Component {
   constructor(props) {
     super(props);
 
-    /*eslint-disable*/
+    /* eslint-disable */
     //////////////////////////////////////////////////////////////////////
     // BEGIN Facebook setup script
 
@@ -44,7 +44,7 @@ export default class GetAccessToken extends React.Component {
     
     // END Facebook login script
     //////////////////////////////////////////////////////////////////////
-    /*eslint-enable*/
+    /* eslint-enable */
 
     this.fbLogin = this.fbLogin.bind(this);
 
@@ -57,49 +57,65 @@ export default class GetAccessToken extends React.Component {
 
   // Attempt to log into facebook after login button pressed
   async fbLogin() {
-    const response = await new Promise(
-      (resolve, reject) =>
-        FB.login(
-          theResponse => resolve(theResponse),
-          { scope: 'publish_actions,user_managed_groups' }));
+    this.setState({ fbState: FBStateEnum.waiting });
 
-    //  note that fbLogin can only be called if status is not success, so
-    //  we need not switch on that
-    switch (response.status) { // eslint-disable-line default-case
-      case 'not_authorized':
-      case 'unknown':
-        this.setState({ fbState: FBStateEnum.unknown });
-        return;
-      case 'connected': {
-        this.setState({ fbState: FBStateEnum.waiting });
-        const theResponseRaw = await fetchPostJson(
-          '/api/admin/update-access-token',
-          { userId: response.authResponse.userID,
-            accessToken: response.authResponse.accessToken });
-        //  Get the response and parse it as json
-        const theResponse = await theResponseRaw.json();
-
-        if (theResponseRaw.ok) {
-          this.setState({
-            fbState: FBStateEnum.success,
-            expiryDate: theResponse.data,
-          });
-        } else {
-          // eslint-disable-next-line no-lonely-if
-          if (theResponse.error.code === 400
-              && theResponse.error.errors
-              && theResponse.error.errors.filter(
-                err => err.reason === 'WrongUser')) {
-            this.setState({ fbState: FBStateEnum.wrongUser });
-          } else {
-            this.setState({
-              fbState: FBStateEnum.serverError,
-              err: theResponse.error && theResponse.error.message
-                ? theResponse.error.message : null });
-          }
-        }
-      }
+    let fbResponse;
+    try {
+      fbResponse = await new Promise(
+        (resolve, reject) =>
+          FB.login(
+            response => resolve(response),
+            { scope: 'publish_actions,user_managed_groups' }));
+    } catch (e) {
+      this.setState({
+        fbState: FBStateEnum.error,
+        err: `Error connecting to Facebook: ${e.toString()}`,
+      });
+      return;
     }
+
+    if (fbResponse.status !== 'connected') {
+      this.setState({
+        fbState: FBStateEnum.error,
+        err: `Error logging into Facebook: ${fbResponse.toString()}`,
+      });
+      return;
+    }
+
+    //  Get the response and parse it as json
+    let response;
+    try {
+      response = await postParseJson(
+        '/api/admin/update-access-token',
+        { userIdFb: fbResponse.authResponse.userID,
+          accessToken: fbResponse.authResponse.accessToken });
+    } catch (e) {
+      this.setState({
+        fbState: FBStateEnum.error,
+        err: `Error getting response from server: ${e.toString()}`,
+      });
+      return;
+    }
+
+    if (response.error) {
+      if (response.error.code === 400
+          && response.error.errors
+          && response.error.errors.filter(
+            err => err.reason === 'WrongUser')) {
+        this.setState({ fbState: FBStateEnum.wrongUser });
+      } else {
+        this.setState({
+          fbState: FBStateEnum.error,
+          err: printBackendError(response, true),
+        });
+      }
+      return;
+    }
+
+    this.setState({
+      fbState: FBStateEnum.success,
+      expiryDate: response.data,
+    });
   }
 
   render() {
@@ -122,7 +138,7 @@ export default class GetAccessToken extends React.Component {
           <div>Please wait for response.</div>
         );
         break;
-      case FBStateEnum.serverError:
+      case FBStateEnum.error:
         content = (
           <div>
             <div>Server Error: {this.state.err}</div>
@@ -134,7 +150,8 @@ export default class GetAccessToken extends React.Component {
       case FBStateEnum.success:
         content = (
           <div>Token updated through {
-            moment(this.state.expiryDate).format('MM/DD/YY')}.</div>
+            moment(this.state.expiryDate).format('MM/DD/YY')}.
+          </div>
         );
         break;
       default:
