@@ -108,11 +108,15 @@ To develop the code base, do the following:
     $ npm install
 1. [Set up configuration variables](#configuration-variables)
 1. Copy server/credentials-template.js to server/credentials.js and edit it. For example, try changing `'mongodb://'` to `'mongodb://localhost/atibroadcastapp'`.
+1. Make sure mongo is running.
+1. Give your Google account the appropriate priveleges on the local install. To do this, first make sure that the file "scripts/addUser.js" is executable by running `chmod -x scripts/addUser.js`. Then, to add a user, run `scripts/addUser.js LOGINEMAIL FIRSTNAME LASTNAME` for each user.
 1. Start the app via:
 
     $ npm run dev-all
-    
+
 The app should automatically detect changes to your code and recompile. The development server will listen on port 8000.
+
+[Note that, to post message, you will first need to set a Facebook access token by running the "Update Access Token" option with the appoporiate Facebook user.]
 
 ### Configuration variables
 
