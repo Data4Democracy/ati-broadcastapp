@@ -91,7 +91,7 @@ export default class LogIn extends React.Component {
 
   onAuthFailure(error) {
     this.setState({
-      error: 'Authorization failure. Please try to login again.',
+      error: `Authorization failure. ${error.message}`,
     });
   }
 

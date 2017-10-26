@@ -10,13 +10,18 @@
 + The messages will be text only (at least for this version). The feature should provide ability to edit/delete as well although that may depend on what the FB API provides. 
 + Initial states to roll out are Ohio, Georgia and Oklahoma but will need to be built with the scale to every state in mind
 
-**Project Leads:**
+**Project Lead:**
 + [@alecf](https://datafordemocracy.slack.com/messages/@alecf/)
+
+**Technical Lead/Systems Architect:**
++ [@jonganc](https://datafordemocracy.slack.com/messages/@jonganc)
 
 **Project Maintainers:** Maintainers have write access to the repository. They are responsible for reviewing pull requests, providing feedback and ensuring consistency.
 + [@wtee](https://datafordemocracy.slack.com/messages/@wtee)
-+ [@jonganc](https://datafordemocracy.slack.com/messages/@jonganc)
 + [@marcus](https://datafordemocracy.slack.com/messages/@marcus)
+
+**Documentation:**
++ [@klanagan](https://datafordemocracy.slack.com/messages/@kflanagan)
 
 ## Getting Started:
 ### Things you should know
