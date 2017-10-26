@@ -5,6 +5,8 @@ import path from 'path';
 import nconf from 'nconf';
 import request from 'request-promise-native';
 
+import asyncConstant from './_common/asyncConstant';
+
 //  get metadata at the given relative url
 async function gaeGetMetadata(relUrl) {
   //  note that await is not required here
@@ -24,10 +26,11 @@ async function getNconf() {
     'cookiesecret',
     'fb_appsecretid',
     'fb_broadcastuserid',
-    'mongo_connectionstring'];
+    'mongo_connectionstring',
+    'google_clientsecret'];
 
   //  settings required
-  const required = fromGaeMetadata.slice().concat(['port']);
+  const required = fromGaeMetadata.slice().concat(['port', 'is_gae']);
 
   nconf
     .argv()
@@ -54,6 +57,10 @@ async function getNconf() {
     onGaeFl = false;
   }
 
+  //  set is_gae
+  nconf.set('is_gae', onGaeFl);
+
+
   //  if we are on Google App Engine, retrieve values from metadata
   if (onGaeFl) {
     await Promise.all(fromGaeMetadata.map(async (el) => {
@@ -67,38 +74,6 @@ async function getNconf() {
   return nconf;
 }
 
-//  resolvedTo, rejectedTo is the value, err to which getNconf
-//  resolves, rejects, respectively
-let resolvedTo;
-let rejectedTo;
-
-//  The promises that need to be resolved with resolvedTo.
-//  Each promise is actually an array [resolve, reject].
-const promisesToResolve = [];
-
-//  Wraps getNconf to deal with promisifying the output.
-(async function getNconfWrapper() {
-  try {
-    resolvedTo = await getNconf();
-    // eslint-disable-next-line no-unused-vars
-    for (const [resolve, _reject] of promisesToResolve) {
-      resolve(resolvedTo);
-    }
-  } catch (err) {
-    rejectedTo = err;
-    // eslint-disable-next-line no-unused-vars
-    for (const [_resolve, reject] of promisesToResolve) {
-      reject(rejectedTo);
-    }
-  }
-}());
-
-//  Get a promise that always resolve to the value of nconf
-export default function getPromise() {
-  if (rejectedTo !== undefined) { return Promise.reject(rejectedTo); }
-  if (resolvedTo !== undefined) { return Promise.resolve(resolvedTo); }
-
-  return new Promise((resolve, reject) => {
-    promisesToResolve.push([resolve, reject]);
-  });
-}
+//  we use asyncConstant because we only want to resolve getNconf once, and
+//  then to simply use that value
+export default asyncConstant(getNconf);

@@ -3,6 +3,6 @@ module.exports = {
     node: true
   },
   rules: {
-    'no-unused-vars': ['warn', {argsIgnorePattern: 'next'}]
+    'no-unused-vars': ['warn', {argsIgnorePattern: '^_|next'}]
   }
 };

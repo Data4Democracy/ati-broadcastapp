@@ -5,7 +5,9 @@ const path = require('path');
 const webpackConfig = {
   entry: {
     app: ['./src/App.jsx'],
-    vendor: ['react', 'react-dom', 'whatwg-fetch', 'react-router', 'moment'],
+    vendor: [
+      'react', 'react-dom', 'prop-types',
+      'whatwg-fetch', 'react-router-dom', 'moment'],
   },
   output: {
     path: path.resolve(__dirname, 'static'),
@@ -45,7 +47,8 @@ if (!isDevServer) {
   //  compiling config.js before running the dev server.
 
   // eslint-disable-next-line global-require
-  require('babel-register')({ only: /server\/config/ });
+  require('babel-register')({
+    only: /server\/(config|_common\/asyncConstant)/ });
   // eslint-disable-next-line global-require
   const configReq = require('./server/config');
   toExport = configReq.default().then((config) => {

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
 export default {
-  googleClientId: '433003784663-srcsl9e2n7o40pul2m10k6bo68sbdfus.apps.googleusercontent.com',
+  googleClientId: '622480563241-pahmfkaqa83ee7g35a8oo87mob3vru6f.apps.googleusercontent.com',
   fbAppId: '418342865205746',
 };

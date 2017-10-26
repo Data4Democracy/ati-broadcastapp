@@ -1,44 +1,42 @@
 import React from 'react';
-import {
-  Navbar, Nav, NavItem, NavDropdown, MenuItem, Glyphicon,
-} from 'react-bootstrap';
+import { Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
+import propTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { LinkContainer } from 'react-router-bootstrap';
-import GoogleLogin from 'react-google-login';
-import ClientCredentials from './credentials-client';
 
-// Dummy callback for login
-const responseGoogle = (response) => {
-  console.log(response);
-};
-
-const Header = () => (
+const Header = props => (
   <Navbar fluid>
     <Navbar.Header>
-      <Navbar.Brand>ATI Broadcast App</Navbar.Brand>
+      <Navbar.Brand>
+        <Link to="/">ATI Broadcast App</Link>
+      </Navbar.Brand>
     </Navbar.Header>
     <Nav>
       <LinkContainer to="/some-path">
         <NavItem>Go somewhere</NavItem>
       </LinkContainer>
-      <NavItem>
-        <GoogleLogin
-          clientId={ClientCredentials.googleClientId}
-          buttonText="Login"
-          onSuccess={responseGoogle}
-          onFailure={responseGoogle}
-        />
-      </NavItem>
     </Nav>
     <Nav pullRight>
       <NavDropdown
         id="user-dropdown"
-        title={<Glyphicon glyph="option-horizontal" />}
+        title={`${props.user.firstName} ${props.user.lastName}`}
         noCaret
       >
-        <MenuItem>Logout</MenuItem>
+        <LinkContainer to="/logout">
+          <MenuItem>Logout</MenuItem>
+        </LinkContainer>
       </NavDropdown>
     </Nav>
   </Navbar>
 );
+
+Header.propTypes = {
+  user: propTypes.shape({
+    states: propTypes.arrayOf(propTypes.string),
+    firstName: propTypes.string,
+    lastName: propTypes.string,
+    isAdmin: propTypes.bool,
+  }).isRequired,
+};
 
 export default Header;

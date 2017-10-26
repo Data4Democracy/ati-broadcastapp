@@ -12,6 +12,11 @@ We are running our apps on Google Cloud Platform, using Google App Engine. Build
 
 + This project is open to people from a variety of technical levels! So don't be afraid to try to contribute and, if you have questions, ask for help. (Also, React is not as complicated as it might seem at first!)
 
+## Other technical information
+
++ [The structure of the database](DATABASE.md)
++ [The API backend](API.md)
+
 ### Notes for non-experts
 
 + .jsx are just javascript files which also allow React components (things that look like -- but are not quite -- standard html). If you know javascript, you should be able to understand them!
@@ -69,9 +74,9 @@ On the production server (or if `npm run compile`, `npm run compile-server` are 
 
 + For rest API endpoints, use spinal case, i.e. "this-style", not "thisStyle" or "this_style".
 
-### Javascript
+### Javascript syntax
 
-+ Use ES2015 syntax on both the server and client-side (including modules). Babel will be used to transpile code for wider compatibility with older browsers.
++ Use ES2015 syntax on both the server and client-side (including modules). Babel will be used to transpile code for wider compatibility with older browsers
 
 ### React
 
@@ -84,6 +89,14 @@ We will (tentatively) follow the [Google JSON Style Guide](https://google.github
 ### Linting
 
 The code is linted via ESLint to follow the [Airbnb javascript guide](https://github.com/airbnb/javascript). For contributors: running eslint (after you have run `npm install` in the main directory to install dependencies) is as easy as running `npm run lint` in the main directory.
+
+### Variable/property names
+
++ Variables/properties holding (the string form of) Mongo ObjectID's should end in "Id"; e.g. a variable holding the ObjectID for a User document could be called `userId`. Other variables should not end in "Id"; e.g., the variable that holds the Facebook ID of the user is called `userIdFb` not `userFbId` or `fBUserId`.
+
+### State names
+
+In the code, state names will be given as the 2-letter lowercase postal abbreviation
 
 ## Development
 
@@ -111,154 +124,15 @@ port | 8080 | port on which server will be run
 fb\_appsecretid | R | Facebook App secret
 fb\_broadcastuserid | R | Facebook broadcast user ID
 mongo_connectionstring | R | connection string for mongo
-cookiesecret | R | salt for cookies (currently unused)
+cookiesecret | R | salt for cookies
+google_clientsecret | R | google client secret (currently not used)
 
-Note that all variables are lowercase.
+*Note: config.js will automatically define the additional variable is_gae, which is true if the instance is run on GAE*
+
+Note that all variables are lowercase and separate using underscores.
 
 Because it is easiest to store configuration variables in different places in different environments, configuration variables are checked for in several places in the following order:
 1. As argument (e.g. `node dist/server.js --port 40 --fb_appsecretid fjlj34`)
 2. As an environmental variable
-3. From the file server/credentials-secret.json
+3. From the file server/config-server.json
 4. From Google App Engine project metadata (if being run on Google App Engine)
-
-## Database collections
-
-### Conventions
-
-- State will be given as the 2-letter lowercase postal abbreviation
-
-### Admin (settings)
-
-The Admin collection hold settings for the Admin user. Each document must have a `name`, holding the setting's name, and then the other fields differ per setting and indicate the setting's values.
-
-#### accessToken
-
-The Facebook access token for the broadcast user.
-
-field name | type | description
----- | ---- | ---
-token | String | The access token
-expiryDate | Date | the token's expiration date
-
-### Broadcasts
-
-Each document is a broadcasted message. The format for a document:
-
-field name | type | description
----- | ---- | ---
-state | String | **[indexed]** state for which the broadcast is made
-messageStates | [[MessageState](#messagestates)] | the history of the message's edits over its lifetime
-groupStatus | {String: Mixed} | an object indicating each groups last confirmed state. Each key is the group id and each value is an array [MESSAGE\_ID, POST\_ID], where MESSAGE\_ID is from the messageState and POST_ID is `null` if the post has been deleted
-broadcastOperations | [[BroadcastOperation](#broadcastoperations)] | in-depth history of the broadcast's updates, for debugging
-editedState | Date | date that edit started if broadcast is being edited, null otherwise
-
-#### MessageState's
-
-An object for specifying the state of the message at one time
-
-field name | type | description
----- | ---- | ---
-id | Number (integer) | 0-based number for an index
-message | String | either the message, or null if message deleted
-
-#### BroadcastOperation's
-
-An object corresponding to one broadcast operation, e.g. broadcasting or deleting a message. It is mostly useful for debugging.
-
-field name | type | description
----- | ---- | ---
-id | Number (integer) | 0-based number for an index
-date | Date | date of request
-userId | Objectid | user making request
-messageStateId | Number (integer) | id of the message state that the operation is aiming toward
-retryFl | Boolean  | true if attempt is a retry of an incomplete posting
-debuggingIds | [ObjectId] | array of [Debugging](#debugging) IDs associated with the operation
-response | Mixed | response object returned to requestor
-
-### Users
-
-The user collection holds all allowed users.
-
-field name | type | description
----- | ---- | ---
-firstName | String | first name
-lastName | String | last name
-states | [String] | an array of the states the user is allowed access to
-loginEmail | String | **[indexed]** google e-mail, for login
-contactEmail | String | user e-mail for contacting
-
-### Debugging
-
-Holds all interactions with Facebook for debugging.
-
-field name | type | description
----- | ---- | ---
-date | Date | date of interaction
-userId | ObjectId | user making request
-request | Mixed | the request object
-response | Mixed | the response object
-type | String | the type of interaction, e.g. `'updateAccessToken'`, `'postMessage'`. Will generally be the same as the controller function name
-context | Mixed | an object that provides an "address" for the request. E.g., if for a message posting, the object will be of the form `{BroadcastId: ..., BroadcastOperationId: ...}`
-
-## Backend API
-
-All API URl's are prefixed with /api
-
-(To be replaced by something using [documentation.js](http://documentation.js.org/), [JSDoc](http://usejsdoc.org/), or [ESDoc](https://esdoc.org/)? Or [Swagger](https://swagger.io/)?)
-
-### /admin
-
-#### /admin/update-access-token POST
-
-Update an access token
-
-##### POST body *(JSON)*
-
-field name | type  |  description
---- | --- | ---
-userId | String | the facebook user ID of the user
-accessToken | String | the access token returned by Facebook FB.login()
-
-##### response, on success *(JSON)*
-
-field name | type  |  description
---- | --- | ---
-expiryDate | Date | date of token expiration
-
-### /post
-
-#### /post POST *(tentative)*
-
-Create a new post
-
-##### POST body *(JSON)*
-
-field name | type  |  description
---- | --- | ---
-state | String | the state to post in
-message | String | the message to be posted
-
-##### response *(JSON)*
-
-field name | type  |  description
---- | --- | ---
-broadcastId | Number (integer) | the _id in the [Broadcasts document](#broadcasts)
-broadcastOperationId | Number (integer) | the [BroadcastOperation](#broadcastoperations) id
-successGroups | [String] | an array of the group ID's that were successfully updated
-error | Object | error object. See below. *only present on an error.*
-
-`response.error`:
-
-field name | type  |  description
---- | --- | ---
-code | Number (integer) | the http code for the response
-errors | [Object] | each object in the array specifies a type of error. See below.
-
-`response.error.errors[N]`:
-
-field name | type  |  description
---- | --- | ---
-reason | String | code name indicating error
-message | String | human readable error message
-groups | [String] | an array of affected groups
-completionTime | Date | estimated completion time. *only if server will retry message.*

@@ -5,8 +5,7 @@ import mongoose from 'mongoose';
 //  Create the Broadcasts options model.
 //   See the TECHNICAL readme for the allowed options.
 export default function () {
-  const Mixed = mongoose.Schema.Types.Mixed;
-  const ObjectId = mongoose.Schema.Types.ObjectId;
+  const { Mixed, ObjectId } = mongoose.Schema.Types;
 
   const debuglogSchema = new mongoose.Schema({
     date: { type: Date, required: true },
