@@ -6,9 +6,10 @@ import nconf from 'nconf';
 import request from 'request-promise-native';
 
 import asyncConstant from './_common/asyncConstant';
+import { parseStatesAllowed } from './_common/misc';
 
 //  get metadata at the given relative url
-async function gaeGetMetadata(relUrl) {
+export async function gaeGetMetadata(relUrl) {
   //  note that await is not required here
   return request({
     url:
@@ -27,7 +28,12 @@ async function getNconf() {
     'fb_appsecretid',
     'fb_broadcastuserid',
     'mongo_connectionstring',
-    'google_clientsecret'];
+    'google_oauthsecret',
+    'google_apikey',
+    'arcgis_clientid',
+    'arcgis_clientsecret',
+    'states_allowed',
+  ];
 
   //  settings required
   const required = fromGaeMetadata.slice().concat(['port', 'is_gae']);
@@ -47,22 +53,18 @@ async function getNconf() {
 
   //  are we on Google App Engine?
 
-  let onGaeFl;
-  //  project-id should always be defined
   try {
-    //  if request doesn't throw an error, we are in Google App Engine
+    //  project-id should always be defined.
+    //  thus, if request doesn't throw an error, we are on Google App
+    //  Engine
     await gaeGetMetadata('project-id');
-    onGaeFl = true;
+    nconf.set('is_gae', true);
   } catch (e) {
-    onGaeFl = false;
+    nconf.set('is_gae', false);
   }
 
-  //  set is_gae
-  nconf.set('is_gae', onGaeFl);
-
-
   //  if we are on Google App Engine, retrieve values from metadata
-  if (onGaeFl) {
+  if (nconf.get('is_gae')) {
     await Promise.all(fromGaeMetadata.map(async (el) => {
       if (!nconf.get(el)) {
         nconf.set(el, await gaeGetMetadata(`attributes/${el}`));
@@ -71,9 +73,17 @@ async function getNconf() {
   }
 
   nconf.required(required);
+
+  // process states_allowed
+  nconf.set(
+    'states_allowed', parseStatesAllowed(nconf.get('states_allowed')));
+
+  console.log('states_allowed:', nconf.get('states_allowed'));
+
   return nconf;
 }
 
-//  we use asyncConstant because we only want to resolve getNconf once, and
-//  then to simply use that value
+/**
+ * a promise for the configuration
+ */
 export default asyncConstant(getNconf);

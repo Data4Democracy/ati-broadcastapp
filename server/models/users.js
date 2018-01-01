@@ -1,42 +1,83 @@
 // Broadcasts holds the record of broadcasted messages
 
 import mongoose from 'mongoose';
+import isemail from 'isemail';
 
-export const testUser = {
-  firstName: 'Test',
-  lastName: 'User',
-  // eslint-disable-next-line max-len
-  states: ['al', 'ak', 'as', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'dc', 'fl', 'ga', 'gu', 'hi', 'id', 'il', 'in', 'ia', 'ks', 'ky', 'la', 'me', 'md', 'mh', 'ma', 'mi', 'fm', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'mp', 'oh', 'ok', 'or', 'pw', 'pa', 'pr', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 'va', 'vi', 'wa', 'wv', 'wi', 'wy'],
-  loginEmail: 'test-user@example.com',
-  userIdAuth: 'abc123',
-  isAdmin: true,
+import { allStates } from '../_common/states';
+
+const utilUserDomain = 'util-user';
+
+
+export const utilUsers = {
+  debugUser: {
+    lastName: 'debug',
+    states: allStates,
+    loginEmail: 'debug@' + utilUserDomain,
+    isAdmin: true,
+  },
+
+  // user for cron jobs
+  cronUser: {
+    lastName: 'cron',
+    states: [],
+    loginEmail: 'cron@' + utilUserDomain,
+    isAdmin: true,
+  },
 };
 
 //  Create the user model.
 //   See the TECHNICAL readme for the allowed options.
-export default function makeUser() {
+export default async function makeUser() {
   const usersSchema = new mongoose.Schema({
     firstName: { type: String, required: false },
     lastName: { type: String, required: true },
-    states: { type: [String], required: false },
-    userIdAuth: { type: String, required: false, unique: true, sparse: true },
-    loginEmail: { type: String, required: true, index: true, unique: true },
+    states: {
+      type: [String],
+      required: false,
+      validate: {
+        validator(states) {
+          if (states instanceof Array) {
+            for (const state of states) {
+              if (allStates.indexOf(state) === -1) {
+                return false;
+              }
+            }
+            return true;
+          } else {
+            return false;
+          }
+        },
+      },
+    },
+    authUserIdOt: {
+      type: String, required: false, unique: true, sparse: true,
+    },
+    loginEmail: {
+      type: String,
+      required: true,
+      index: true,
+      unique: true,
+      validate: { validator: isemail.validate },
+    },
     contactEmail: { type: String, required: false, index: true },
     isAdmin: { type: Boolean, required: false, default: false },
-  });
+  }, { strict: 'throw' });
 
-  usersSchema.statics.addTestUser = async function addTestUser() {
-    let testUserObj = await this.findOne({
-      userIdAuth: testUser.userIdAuth });
-    if (!testUserObj) {
-      testUserObj = new this(testUser);
-      await testUserObj.save();
-    }
-    // add testUser as a property on the Users model
-    this.testUser = testUserObj;
-  };
+  const model = mongoose.model('User', usersSchema);
+  await model.ensureIndexes();
 
-  mongoose.model('User', usersSchema);
-
-  // add a test user if we don't have one already
+  // add util users
+  await Promise.all(
+    Object.keys(utilUsers).map(
+      async (userName) => {
+        const user = utilUsers[userName];
+        let userObj = await model.findOne({
+          loginEmail: user.loginEmail });
+        if (!userObj) {
+          userObj = await model.create(user);
+        }
+        // add user as a property on the Users model
+        model[userName] = userObj;
+      }),
+  );
 }

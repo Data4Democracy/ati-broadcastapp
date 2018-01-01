@@ -48,7 +48,7 @@ export default async function authUserGoogle(idToken, isProduction = true) {
                 = message => (makeError({ reason: 'NoUser', message }, 403));
 
           /* eslint-disable dot-notation */
-          let user = await User.findOne({ userIdAuth: payload['sub'] });
+          let user = await User.findOne({ authUserIdOt: payload['sub'] });
           if (user) {
             resolve(user);
             return;
@@ -72,7 +72,8 @@ export default async function authUserGoogle(idToken, isProduction = true) {
             return;
           }
 
-          user.userIdAuth = payload['sub'];
+          user.set('authUserIdOt', payload['sub']);
+          await user.save();
           resolve(user);
           /* eslint-enable dot-notation */
         }

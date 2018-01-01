@@ -11,7 +11,7 @@ manual_scaling:
 skip_files:
   - ^server/config-server\.json$
   - ^node_modules$
-  - ^dist$
+  - ^dist.*$
   - ^static/bootstrap$
   - ^.*[~#]$
   - (^|/)[~#][^/]*$

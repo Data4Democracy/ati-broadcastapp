@@ -87,7 +87,7 @@ export default class GetAccessToken extends React.Component {
     try {
       response = await postParseJson(
         '/api/admin/update-access-token',
-        { userIdFb: fbResponse.authResponse.userID,
+        { userIdOt: fbResponse.authResponse.userID,
           accessToken: fbResponse.authResponse.accessToken });
     } catch (e) {
       this.setState({

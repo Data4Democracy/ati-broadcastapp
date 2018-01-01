@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs');
+import yargs from 'yargs';
 
-const addUser = require('../dist/_common/addUser').default;
-const users = require('../dist/models/users');
+import addUser from '../dist-server/_common/addUser';
+import { allStates } from '../dist-server/_common/states';
 
 async function main() {
   const args = yargs
@@ -18,7 +18,7 @@ async function main() {
     loginEmail,
     firstName,
     lastName,
-    states: users.testUser.states,
+    states: allStates,
     isAdmin: true,
   });
 

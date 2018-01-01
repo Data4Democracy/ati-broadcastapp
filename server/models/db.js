@@ -4,10 +4,14 @@ import mongoose from 'mongoose';
 
 import asyncConstant from '../_common/asyncConstant';
 import getConfigPromise from '../config';
-import adminsettingsInit from './adminsettings';
-import broadcastsInit from './broadcasts';
-import usersInit from './users';
-import debuglogInit from './debuglogs';
+import adminsettingsModel from './adminsettings';
+import broadcastsModel from './broadcasts';
+import usersModel from './users';
+import groupsModel from './groups';
+import fbProfsModel from './fbProfs';
+import badFbUrlsModel from './badFbUrls';
+import cachedLocationsModel from './cachedLocations';
+import debuglogModel from './debuglogs';
 
 mongoose.Promise = global.Promise;
 
@@ -15,7 +19,7 @@ mongoose.Promise = global.Promise;
 const opts = {};
 
 //  Initialize the database. Return the mongoose connection
-export async function initDb() {
+async function getDbPromise() {
   // CONNECTION EVENTS
   mongoose.connection.on(
     'connecting', () => console.log('Mongoose connecting'));
@@ -52,18 +56,24 @@ export async function initDb() {
     disconnectWiMsg('Heroku apt termination', () => process.exit(0));
   });
 
-  adminsettingsInit();
-  broadcastsInit();
-  usersInit();
-  debuglogInit();
-
   const config = await getConfigPromise();
 
   await mongoose.connect(
     config.get('mongo_connectionstring'),
     Object.assign(opts, { useMongoClient: true }));
 
-  await mongoose.model('User').addTestUser();
+  await Promise.all([
+    adminsettingsModel(),
+    broadcastsModel(),
+    usersModel(),
+    debuglogModel(),
+    groupsModel(),
+    fbProfsModel(),
+    badFbUrlsModel(),
+    cachedLocationsModel(),
+  ]);
+
+  return mongoose.connection;
 }
 
-export default asyncConstant(initDb);
+export default asyncConstant(getDbPromise);

@@ -1,6 +1,5 @@
 cron:
-- description: fetch new groups from indivisible site weekly
-  url: /scripts/getStates.js
-  schedule: every sunday 04:00
-  timezone: America/New_York
+- description: "refresh groups"
+  url: /api/cron/refresh-groups
+  schedule: every 1 hours
 
