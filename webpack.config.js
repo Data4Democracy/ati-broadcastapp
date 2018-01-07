@@ -48,7 +48,7 @@ if (!isDevServer) {
 
   // eslint-disable-next-line global-require
   require('babel-register')({
-    only: /server\/(config|_common\/asyncConstant)/ });
+    only: /server\/.*/ });
   // eslint-disable-next-line global-require
   const configReq = require('./server/config');
   toExport = configReq.default().then((config) => {

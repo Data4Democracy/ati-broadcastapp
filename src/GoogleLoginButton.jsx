@@ -47,7 +47,7 @@ class GoogleLoginButton extends React.Component {
     });
   }
 
-  render(props) {
+  render() {
     if (!this.state.isStyled) {
       this.state.isStyled = true;
 

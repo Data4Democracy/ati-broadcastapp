@@ -3,7 +3,7 @@
 import { injectScript } from './common-client';
 
 export default async function googleLogOut() {
-  if (!window.gapin) {
+  if (!window.gapi) {
     await injectScript('https://apis.google.com/js/api.js');
   }
   if (!window.gapi.auth2) {

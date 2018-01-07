@@ -8,7 +8,7 @@ import getDbConnection from '../models/db';
 SourceMapSupport.install();
 
 //  user can have
-//   {firstName, lastName, states, loginEmail, userIdAuth, isAdmin}
+//   {firstName, lastName, states, loginEmail, authUserIdOt, isAdmin}
 //  only lastName and loginEmail are required
 export default async function addUser(user) {
   if (!(user.lastName && user.loginEmail)) {
@@ -18,7 +18,7 @@ export default async function addUser(user) {
   const userToAdd = {};
 
   ['firstName', 'lastName', 'states',
-    'loginEmail', 'userIdAuth', 'isAdmin']
+    'loginEmail', 'authUserIdOt', 'isAdmin']
     .forEach((field) => {
       if (user[field]) userToAdd[field] = user[field];
     });

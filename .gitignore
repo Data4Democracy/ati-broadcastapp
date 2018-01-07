@@ -1,14 +1,25 @@
-node_modules
-static/app.bundle.js
-static/vendor.bundle.js
-static/app.bundle.js.map
-static/vendor.bundle.js.map
-static/bootstrap
-server/config-server.json
-dist
-npm-debug.log
+/node_modules
+/static/app.bundle.js
+/static/vendor.bundle.js
+/static/app.bundle.js.map
+/static/vendor.bundle.js.map
+/static/bootstrap
+/server/config-server.json*
+/dist-server/
+/dist-scripts/
+/npm-debug.log
 *[~#]
 [~#]*
+/source-context.json
+/source-contexts.json
+/gtags.conf
+/GRTAGS
+/GPATH
+/GTAGS
+/TAGS
+.tern-port
+.tern-project
+.tern-config
 
 # for travis
 /app_engine-service_account_key.json

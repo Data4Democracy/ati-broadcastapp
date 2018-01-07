@@ -55,7 +55,7 @@ export async function loginGetMain({ session }) {
 }
 
 //  attempt to log in user using idToken
-//  session should have a userIdAuth property
+//  session should have a authUserIdOt property
 export async function loginPostMain(
   { body: { idToken }, session, app: { locals: { isProduction } } }) {
   init();
@@ -66,7 +66,7 @@ export async function loginPostMain(
   session.userId = null;
   const userOrError = await authUser(idToken, isProduction);
   if (userOrError instanceof User) {
-    session.userId = userOrError.id;
+    session.userId = userOrError.get('id');
     return makeLoginResponse(userOrError);
   } else {
     return userOrError;

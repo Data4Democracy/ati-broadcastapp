@@ -3,12 +3,13 @@
 import mongoose from 'mongoose';
 
 import { makeError, middlewareFactory } from '../_common/express-helpers';
-import fbRequest from './_common/fbRequest';
+import { fbRequestsFull } from './_common/fbRequestFcns';
 
 //  models can only be defined after the schema have been defined. There
 //  might be a better way to handle this.
-let Broadcast = null;
-let Debuglog = null;
+let Broadcast;
+let Debuglog;
+let FbProf;
 // initialize the models, but only once
 function initModels() {
   if (!Broadcast) {
@@ -16,6 +17,9 @@ function initModels() {
   }
   if (!Debuglog) {
     Debuglog = mongoose.model('Debuglog');
+  }
+  if (!FbProf) {
+    FbProf = mongoose.model('FbProf');
   }
 }
 
@@ -32,16 +36,20 @@ function newPostValidateRequestFormat(body) {
 //  user validation
 //  is user allowed to make request
 function validateUser(body, user) {
-  if (!user.states.includes(body.state)) {
+  if (!user.get('states').includes(body.state)) {
     return false;
   }
 
   return true;
 }
 
-//  eventually, this will get the groups for each state
-async function getGroups(state) { // eslint-disable-line no-unused-vars
-  return ['1025537044214027', '1318937518226597'];
+//  eventually, this will get the profiles for each state
+async function getFbProfs(state) { // eslint-disable-line no-unused-vars
+  initModels();
+  return FbProf.debugFbProfs;
+  // return ['1025537044214027', // '1318937518226597', // , '461816757311012'
+  // ];
+  // return ['abc123lbj'];
 }
 
 //  give a fail code for a particular response. For now, we just use the
@@ -55,7 +63,7 @@ function failCodeForResponse(response) {
     : 1;
 }
 
-export async function newPostMain({ body }, { locals: { user } }) {
+export async function newPostMain({ ip, body }, { locals: { user } }) {
   initModels();
 
   // validate format
@@ -77,44 +85,47 @@ export async function newPostMain({ body }, { locals: { user } }) {
 
   const { state, message } = body;
 
-  const [broadcast, groups] = await Promise.all([
-    Broadcast.newBroadcast(user, state, message),
-    getGroups(state)]);
+  const [broadcast, fbProfs]
+    = await Promise.all([
+      Broadcast.newBroadcast(user, state, message),
+      getFbProfs(state)]);
 
-  const broadcastOperation = broadcast.broadcastOperations[0];
-  const messageState = broadcast.messageStates[0];
+  const broadcastOperation = broadcast.get('broadcastOperations')[0];
+  const messageStateId = broadcastOperation.get('messageStateId');
 
-  const fbReqResponse = await fbRequest({
-    reqs: groups.map(group => ({
+  const fbReqResponse = await fbRequestsFull({
+    reqs: fbProfs.map(fbProf => ({
       method: 'POST',
-      relative_url: `${group}/feed`,
-      // eslint-disable-next-line prefer-template
+      relative_url: `${fbProf.idOt}/feed`,
       body: 'message=' + encodeURIComponent(message),
     })),
     metadata: {
       user,
+      ip,
       type: 'post-new',
       address: {
-        broadcastId: broadcast._id,
-        broadcastOperationId: broadcastOperation._id,
+        broadcastId: broadcast.get('_id'),
+        broadcastOperationId: broadcastOperation.get('_id'),
       },
     },
-    contexts: groups,
   });
 
-  //  first, set up the promise for updating debug
-  broadcastOperation.debug = fbReqResponse.map(batch => batch.debug);
+  //  save debuglogs
+  broadcastOperation.set('debuglogIds', fbReqResponse.debuglogs);
   //  note that there's no reason to wait for this finish
-  broadcast.save();
+  await broadcast.save();
 
-  //  next, we set up promises for waiting for each response and then
-  //     2.1) update broadcast with updated group status
+  //  next, we deal with each reponse, doing:
+  //     2.1) update broadcast with updated profile status
   //     2.2) update client
 
-  //  successPostIds: a hash connecting each group with the post_id
+  //  successes: an array where each element is a pair
+  //    [fbProf, postIdOt], i.e. which connects each fbProf with the
+  //    Facebook post_id (i.e. postIdOt)
+  const successes = [];
   //  failsByCode: a hash connecting each fail code with a list of
-  //    affected groups
-  const [successPostIds, failsByCode] = [{}, {}];
+  //    affected fbProfs
+  const failsByCode = {};
 
   //  note that the FB response is of the form:
   //  [ { code: 200, body: {id: '1025537044214027_1079783908789340'},
@@ -123,44 +134,44 @@ export async function newPostMain({ body }, { locals: { user } }) {
   //      headers: ... } },
   //    { code: 400, body: {error: {
   //        message: ..., code: ..., fbtrace_id: ... }}, headers: ... } ]
-  await Promise.all(fbReqResponse.map(async (fbReqBatch) => {
-    const response = await fbReqBatch.response;
-    response.forEach((oneResponse, idx) => {
-      const groupId = fbReqBatch.contexts[idx];
-      if (oneResponse.code === 200) {
-        successPostIds[groupId] = oneResponse.body.id;
-      } else {
-        const failCode = failCodeForResponse(oneResponse);
-        if (!failsByCode[failCode]) {
-          failsByCode[failCode] = [];
-        }
-        failsByCode[failCode].push(groupId);
+  fbReqResponse.responses.forEach((oneResponse, idx) => {
+    const fbProf = fbProfs[idx];
+    if (oneResponse.code === 200) {
+      successes.push([fbProf, oneResponse.body.id]);
+    } else {
+      const failCode = failCodeForResponse(oneResponse);
+      if (!failsByCode[failCode]) {
+        failsByCode[failCode] = [];
       }
+      failsByCode[failCode].push(fbProf);
+    }
+  });
 
-      //  update the message status of successful posts
-      for (const [successGroup, postId] of Object.entries(successPostIds)) {
-        broadcast.groupStatus[successGroup] = { messageState, postId };
-      }
-    });
-  }));
-  broadcast.editedState = null;
-  // note that there's no reason to wait for this to finish
-  broadcast.save();
+  // update broadcast
+  const broadcastFbProfStatuses = {};
+  //  update the message status of successful posts
+  for (const [fbProf, postIdOt] of successes) {
+    broadcastFbProfStatuses[fbProf.id] = [messageStateId, postIdOt];
+  }
+  broadcast.set('fbProfStatuses', broadcastFbProfStatuses);
+  broadcast.set('editedState', null);
 
-  // all responses have been processed at this point
+  await broadcast.save();
+
+  //  now we make response
   const overallResponse = {
-    broadcastId: broadcast._id,
-    broadcastOperationId: broadcastOperation._id,
-    successGroups: Object.keys(successPostIds),
+    broadcastId: broadcast.id,
+    broadcastOperationId: broadcastOperation.id,
+    successFbProfs: successes.map(pair => pair[0].forResponse()),
   };
   if (Object.keys(failsByCode).length !== 0) {
     overallResponse.error = {
       errors: [],
     };
-    for (const [code, failedGroups] of Object.entries(failsByCode)) {
+    for (const [code, failedFbProfs] of Object.entries(failsByCode)) {
       overallResponse.error.errors.push({
         code: parseInt(code, 10),
-        failedGroups,
+        fbProfs: failedFbProfs.map(fbProf => fbProf.forResponse()),
       });
     }
     const firstError = overallResponse.error.errors[0];

@@ -13,19 +13,19 @@ let Adminsetting = null;
 
 //  Update the Facebook Access Token
 //  Expect a JSON object with parameters
-//   userIdFb (string): the facebook user-ID of the user attempting to log in
+//   userIdOt (string): the facebook user-ID of the user attempting to log in
 //   accessToken (string): the access token sent in
-//  If userIdFb is not that of the broadcast user, will return an error 403,
+//  If userIdOt is not that of the broadcast user, will return an error 403,
 //  with error.errors = [{reason: 'WrongUser'}]
 export async function updateAccessTokenMain(
-  { body: { userIdFb, accessToken } }) {
+  { body: { userIdOt, accessToken } }) {
   if (!Adminsetting) {
     Adminsetting = mongoose.model('Adminsetting');
   }
 
   const config = await getConfigPromise();
 
-  if (!(userIdFb === config.get('fb_broadcastuserid'))) {
+  if (!(userIdOt === config.get('fb_broadcastuserid'))) {
     return makeError({
       message: 'Wrong Facebook user',
       reason: 'WrongUser',

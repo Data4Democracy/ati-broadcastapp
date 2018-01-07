@@ -3,5 +3,9 @@
   "fb_appsecretid": "THE_FACEBOOK_APP_SECRET_ID",
   "fb_broadcastuserid": "THE_FACEBOOK_BROADCAST_USER_ID",
   "mongo_connectionstring": "mongodb://",
-  "google_clientsecret": "THE_GOOGLE_CLIENTSECRET"
+  "google_oauthsecret": "THE_GOOGLE_OAUTHSECRET",
+  "google_apikey": "THE_GOOGLE_APIKEY",
+  "arcgis_clientid": "THE_ARCGIS_CLIENTID",
+  "arcgis_clientsecret": "THE_ARCGIS_CLIENTSECRET",
+  "states_allowed": ["ok"],
 }

@@ -12,7 +12,7 @@ import * as gcpDebugAgent from '@google-cloud/debug-agent';
 // import logger from 'morgan';
 
 import getConfigPromise from './config';
-import getApiRouter from './routes/index-wrapper';
+import getApiRouter from './routes';
 
 SourceMapSupport.install();
 gcpDebugAgent.start();
@@ -22,9 +22,9 @@ async function main() {
   const app = express();
 
   //  are we in production?
-  app.locals.isProduction = !(app.get('env') === 'development');
+  app.locals.isProduction = !(process.env.NODE_ENV === 'development');
 
-  if (app.locals.isProduction) {
+  if (!app.locals.isProduction) {
     console.error(
       'Warning: app is being run in the development environment.'
         + ' This can open security holes if used in production.');
@@ -38,7 +38,9 @@ async function main() {
   app.use(express.static(staticDir));
 
   // trust proxy when it says, e.g., that pre-forwarded request used https
-  if (config.get('is_gae')) app.set('trust proxy', 1);
+  if (config.get('is_gae')) {
+    app.set('trust proxy', true);
+  }
 
   app.use('/api', await getApiRouter());
 

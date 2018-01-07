@@ -19,7 +19,7 @@ name of subfield of `response.data` | type  |  description
 isLoggedIn | Boolean | Is user logged in?
 firstName | String | * user's first name
 lastName | String | * user's last name
-states | {String: Mixed} | * A hash. Each key is a state that the user is permitted to post to. Each value is itself a hash giving attributes about the state. It is of the form `{groupsJoined, groupsKnownNotJoined}`, where `groupsJoined` is the number of groups that the priveleged user can post to and `groupsKnownNotJoined` is the number of groups that are known but that haven't joined. 
+states | {String: Mixed} | * A hash. Each key is a state that the user is permitted to post to. Each value is itself a hash giving attributes about the state. It is of the form `{fbProfsJoined, fbProfsKnownNotJoined}`, where `fbProfsJoined` is the number of fbProfs that the priveleged user can post to and `fbProfsKnownNotJoined` is the number of fbProfs that are known but that haven't joined. 
 isAdmin | Boolean | * Is the user an admin?
 
 *: Only present if user is logged in.
@@ -58,7 +58,7 @@ Update an access token
 
 field name | type  |  description
 --- | --- | ---
-userIdFb | String | the facebook user ID of the user
+userIdOt | String | the facebook user ID of the user
 accessToken | String | the access token returned by Facebook FB.login()
 
 #### response, on success
@@ -84,9 +84,9 @@ message | String | the message to be posted
 
 field name | type  |  description
 --- | --- | ---
-broadcastId | Number (integer) | the _id in the [Broadcasts document](#broadcasts)
+broadcastId | Number (integer) | the id in the [Broadcasts document](#broadcasts)
 broadcastOperationId | Number (integer) | the [BroadcastOperation](#broadcastoperations) id
-successGroups | [String] | an array of the group ID's that were successfully updated
+successFbProfs | [FbProfs] | an array of the facebook profiles that were successfully updated
 error | Object | error object. See below. *only present on an error.*
 
 `response.error`:
@@ -102,8 +102,12 @@ field name | type  |  description
 --- | --- | ---
 reason | String | code name indicating error
 message | String | human readable error message
-groups | [String] | an array of affected groups
+fbProfs | [FbProfs] | an array of affected [fbProfs](#fbProfs)
 completionTime | Date | estimated completion time. *only if server will retry message.*
+
+##### fbProfs
+
+an fbProf is an object of the form { id, idOt, name }, where the entries have the same meaning as in [DATABASE.md](DATABASE.md).
 
 ## Error reasons
 
